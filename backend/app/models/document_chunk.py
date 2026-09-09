@@ -17,7 +17,7 @@ class DocumentChunk(Base):
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
     page_number: Mapped[int] = mapped_column(Integer, nullable=False)
-    embedding = mapped_column(Vector(1536), nullable=True)
+    embedding = mapped_column(Vector(768), nullable=True)
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
