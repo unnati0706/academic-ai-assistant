@@ -47,6 +47,16 @@ def test_fastapi_app():
     print(f"   Response count: {len(res.json())}")
     assert res.status_code == 200, f"Expected 200, got {res.status_code}"
 
+    # 6. Materials View Proxy endpoint
+    print("\n6. GET /api/v1/materials/{material_id}/view ...")
+    materials_list = client.get("/api/v1/materials").json()
+    if materials_list:
+        mat_id = materials_list[0]["id"]
+        res_view = client.get(f"/api/v1/materials/{mat_id}/view", follow_redirects=False)
+        print(f"   Status Code: {res_view.status_code}")
+        assert res_view.status_code in [307, 200], f"Expected 307 redirect or 200, got {res_view.status_code}"
+        print(f"   View redirect location: {res_view.headers.get('location')}")
+
     print("\n" + "=" * 60)
     print("ALL API ENDPOINT VERIFICATION TESTS PASSED SUCCESSFULLY!")
     print("=" * 60)

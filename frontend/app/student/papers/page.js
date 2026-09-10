@@ -1,60 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Search, FileText, Download, Sparkles, Calendar, BookOpen } from 'lucide-react';
+import { Search, FileText, Download, Calendar, ExternalLink } from 'lucide-react';
 import { api } from '@/lib/api';
+import { getDocumentUrl } from '@/lib/supabase';
 
 export default function PapersPage() {
-  const [semester, setSemester] = useState('5');
+  const [semester, setSemester] = useState('');
   const [examType, setExamType] = useState('');
   const [year, setYear] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [papers, setPapers] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const mockPapersList = [
-    {
-      id: 'p1',
-      title: 'Data Structures Mid-Semester Question Paper 2025',
-      subject_name: 'Data Structures & Algorithms',
-      subject_code: 'CS-501',
-      exam_type: 'mid-sem',
-      year: 2025,
-      semester: 5,
-      file_url: '#'
-    },
-    {
-      id: 'p2',
-      title: 'Operating Systems University End-Sem Examination 2024',
-      subject_name: 'Operating Systems',
-      subject_code: 'CS-502',
-      exam_type: 'university',
-      year: 2024,
-      semester: 5,
-      file_url: '#'
-    },
-    {
-      id: 'p3',
-      title: 'Database Management Systems Mid-Term Paper 2024',
-      subject_name: 'Database Management Systems',
-      subject_code: 'CS-503',
-      exam_type: 'mid-sem',
-      year: 2024,
-      semester: 5,
-      file_url: '#'
-    },
-    {
-      id: 'p4',
-      title: 'Computer Networks End-Semester Exam 2023',
-      subject_name: 'Computer Networks',
-      subject_code: 'CS-504',
-      exam_type: 'university',
-      year: 2023,
-      semester: 5,
-      file_url: '#'
-    }
-  ];
 
   useEffect(() => {
     async function fetchPapers() {
@@ -67,21 +24,10 @@ export default function PapersPage() {
         if (searchQuery) params.search = searchQuery;
 
         const res = await api.getPapers(params).catch(() => []);
-        if (res && res.length) {
-          setPapers(res);
-        } else {
-          let filtered = mockPapersList;
-          if (semester) filtered = filtered.filter(p => String(p.semester) === String(semester));
-          if (examType) filtered = filtered.filter(p => p.exam_type === examType);
-          if (year) filtered = filtered.filter(p => String(p.year) === String(year));
-          if (searchQuery) {
-            const q = searchQuery.toLowerCase();
-            filtered = filtered.filter(p => p.title.toLowerCase().includes(q) || p.subject_name.toLowerCase().includes(q));
-          }
-          setPapers(filtered);
-        }
+        setPapers(res || []);
       } catch (err) {
         console.error("Fetch papers error:", err);
+        setPapers([]);
       } finally {
         setLoading(false);
       }
@@ -153,7 +99,7 @@ export default function PapersPage() {
             className="w-full px-3 py-2.5 bg-gray-900/90 border border-gray-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500 transition-all"
           >
             <option value="">All Years</option>
-            {[2025, 2024, 2023, 2022].map(y => (
+            {[2026, 2025, 2024, 2023, 2022].map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
@@ -186,36 +132,45 @@ export default function PapersPage() {
                   <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase bg-purple-500/20 text-purple-300 border border-purple-500/30">
                     {paper.exam_type === 'mid-sem' ? 'Mid-Semester' : 'University End-Sem'}
                   </span>
-                  <div className="flex items-center space-x-1 text-[11px] text-gray-400 bg-gray-800/80 px-2 py-0.5 rounded-md border border-gray-700/50">
-                    <Calendar className="w-3 h-3 text-gray-400" />
-                    <span>{paper.year}</span>
-                  </div>
+                  {paper.year && (
+                    <div className="flex items-center space-x-1 text-[11px] text-gray-400 bg-gray-800/80 px-2 py-0.5 rounded-md border border-gray-700/50">
+                      <Calendar className="w-3 h-3 text-gray-400" />
+                      <span>{paper.year}</span>
+                    </div>
+                  )}
                 </div>
 
                 <h3 className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors line-clamp-2 leading-snug">
                   {paper.title}
                 </h3>
-                <p className="text-[11px] text-indigo-400 font-medium mt-1">{paper.subject_name || paper.subject_code}</p>
+                <p className="text-[11px] text-indigo-400 font-medium mt-1">{paper.subject_name || paper.subject_code || 'Computer Science'}</p>
               </div>
 
               <div className="pt-4 border-t border-gray-800/80 flex items-center space-x-2">
-                <Link
-                  href={`/student/chat?query=Solve question paper: ${encodeURIComponent(paper.title)}`}
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-200 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Solve with AI</span>
-                </Link>
+                {(paper.file_url || paper.file_path || paper.id) && (
+                  <a
+                    href={getDocumentUrl(paper.file_url || paper.file_path, 'academic-documents', paper.id)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-200 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5 text-purple-400" />
+                    <span>View PDF</span>
+                  </a>
+                )}
 
-                <a
-                  href={paper.file_url || '#'}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 transition-colors"
-                  title="Download Paper PDF"
-                >
-                  <Download className="w-4 h-4" />
-                </a>
+                {(paper.file_url || paper.file_path || paper.id) && (
+                  <a
+                    href={getDocumentUrl(paper.file_url || paper.file_path, 'academic-documents', paper.id)}
+                    download
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 transition-colors"
+                    title="Download Paper PDF"
+                  >
+                    <Download className="w-4 h-4" />
+                  </a>
+                )}
               </div>
             </div>
           ))}

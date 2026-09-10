@@ -33,18 +33,50 @@ class StorageService:
         unique_name = f"{uuid.uuid4().hex}_{safe_filename}"
         
         try:
-            res = self.client.storage.from_(BUCKET_NAME).upload(
+            self.client.storage.from_(BUCKET_NAME).upload(
                 path=unique_name,
                 file=file_bytes,
                 file_options={"content-type": content_type, "upsert": "true"}
             )
-            # Return public URL for file
-            public_url = self.client.storage.from_(BUCKET_NAME).get_public_url(unique_name)
-            return public_url
         except Exception as e:
             logger.error(f"Error uploading file {original_filename} to Supabase storage: {e}")
-            # Fallback URL format if client upload call has quirks
-            return f"{settings.SUPABASE_URL}/storage/v1/object/public/{BUCKET_NAME}/{unique_name}"
+        
+        return f"{settings.SUPABASE_URL}/storage/v1/object/public/{BUCKET_NAME}/{unique_name}"
+
+    def get_file_url(self, file_path_or_url: str) -> str:
+        """Return full public URL for a file path or URL."""
+        if not file_path_or_url:
+            return ""
+        if file_path_or_url.startswith("http://") or file_path_or_url.startswith("https://"):
+            return file_path_or_url
+
+        filename = file_path_or_url.split("/")[-1]
+        try:
+            public_url = self.client.storage.from_(BUCKET_NAME).get_public_url(filename)
+            if public_url:
+                return public_url
+        except Exception as e:
+            logger.warning(f"Error resolving public URL for {filename}: {e}")
+
+        return f"{settings.SUPABASE_URL}/storage/v1/object/public/{BUCKET_NAME}/{filename}"
+
+    def get_signed_url(self, file_path_or_url: str, expires_in: int = 3600) -> str:
+        """Generate signed URL if bucket is private."""
+        if not file_path_or_url:
+            return ""
+        filename = file_path_or_url.split("/")[-1]
+        try:
+            res = self.client.storage.from_(BUCKET_NAME).create_signed_url(filename, expires_in)
+            if isinstance(res, dict) and "signedURL" in res:
+                return res["signedURL"]
+            elif hasattr(res, "signed_url"):
+                return getattr(res, "signed_url")
+            elif isinstance(res, str):
+                return res
+        except Exception as e:
+            logger.warning(f"Could not create signed URL for {filename}: {e}")
+
+        return self.get_file_url(file_path_or_url)
 
     def delete_file(self, file_path_or_url: str) -> bool:
         """Delete file from Supabase storage bucket."""
@@ -57,3 +89,4 @@ class StorageService:
             return False
 
 storage_service = StorageService()
+

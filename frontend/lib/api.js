@@ -6,10 +6,12 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/a
 export async function apiFetch(endpoint, options = {}) {
   const token = typeof window !== "undefined" ? localStorage.getItem("academic_ai_token") : null;
   
-  const headers = {
-    "Content-Type": "application/json",
-    ...options.headers,
-  };
+  const headers = { ...options.headers };
+
+  // Do not set Content-Type if body is FormData
+  if (!(options.body instanceof FormData) && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json";
+  }
 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
@@ -26,17 +28,22 @@ export async function apiFetch(endpoint, options = {}) {
       const errorData = await res.json().catch(() => ({}));
       throw new Error(errorData.detail || `Request failed with status ${res.status}`);
     }
+    if (res.status === 204) return null;
     return await res.json();
   } catch (err) {
-    console.warn(`API call failed for ${endpoint}:`, err.message);
-    throw err;
+    const errorMsg = (err.message === "Failed to fetch" || err.name === "TypeError")
+      ? `Unable to connect to backend server at ${API_BASE_URL}. Please ensure backend is running.`
+      : err.message;
+    console.warn(`API call failed for ${endpoint}:`, errorMsg);
+    throw new Error(errorMsg);
   }
 }
 
 // API Endpoints
 export const api = {
   // Auth
-  verifyOtp: (email, token) => apiFetch("/auth/verify-otp", { method: "POST", body: JSON.stringify({ email, token }) }),
+  verifyOtp: (email, token, role = "student") =>
+    apiFetch("/auth/verify-otp", { method: "POST", body: JSON.stringify({ email, token, role }) }),
   getMe: () => apiFetch("/auth/me"),
 
   // Materials & Subjects
@@ -47,9 +54,28 @@ export const api = {
     if (params.unit) query.append("unit", params.unit);
     if (params.material_type) query.append("material_type", params.material_type);
     if (params.search) query.append("search", params.search);
+    if (params.uploaded_by) query.append("uploaded_by", params.uploaded_by);
     const queryString = query.toString() ? `?${query.toString()}` : "";
     return apiFetch(`/materials${queryString}`);
   },
+
+  getFacultyMaterials: (facultyId) => apiFetch(`/materials/faculty/${facultyId}`),
+
+  uploadMaterial: (formData) =>
+    apiFetch("/materials/upload", {
+      method: "POST",
+      body: formData,
+    }),
+
+  archiveMaterial: (materialId) =>
+    apiFetch(`/materials/${materialId}/archive`, {
+      method: "PATCH",
+    }),
+
+  deleteMaterial: (materialId) =>
+    apiFetch(`/materials/${materialId}`, {
+      method: "DELETE",
+    }),
 
   // Question Papers
   getPapers: (params = {}) => {

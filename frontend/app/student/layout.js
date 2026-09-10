@@ -2,6 +2,7 @@
 
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
+import FloatingChatWidget from '@/components/FloatingChatWidget';
 
 export default function StudentLayout({ children }) {
   return (
@@ -13,6 +14,7 @@ export default function StudentLayout({ children }) {
           {children}
         </main>
       </div>
+      <FloatingChatWidget />
     </div>
   );
 }

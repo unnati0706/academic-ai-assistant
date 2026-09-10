@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     SUPABASE_URL: str
     SUPABASE_SERVICE_ROLE_KEY: str
     AI_API_KEY: str
+    OCR_SPACE_API_KEY: str = "K88088282788957"
 
     model_config = SettingsConfigDict(
         env_file=str(ENV_FILE),

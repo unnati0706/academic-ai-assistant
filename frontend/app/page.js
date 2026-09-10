@@ -10,8 +10,8 @@ export default function Home() {
   useEffect(() => {
     const user = getStoredUser();
     if (user) {
-      if (user.role === 'faculty_admin') {
-        router.replace('/admin/dashboard');
+      if (user.role === 'faculty' || user.role === 'faculty_admin') {
+        router.replace('/faculty/dashboard');
       } else {
         router.replace('/student/dashboard');
       }

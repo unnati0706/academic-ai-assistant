@@ -12,10 +12,18 @@ def verify_otp(payload: VerifyOTPRequest, db: Session = Depends(get_db)):
     """Verify Supabase OTP / login token and retrieve or register local DB user."""
     email = payload.email
     user = db.query(User).filter(User.email == email).first()
+    
+    target_role = UserRole.STUDENT
+    if payload.role in ["faculty", "faculty_admin"]:
+        target_role = UserRole.FACULTY_ADMIN
+
     if not user:
-        # Register new student user by default upon first login
-        user = User(email=email, role=UserRole.STUDENT)
+        user = User(email=email, role=target_role)
         db.add(user)
+        db.commit()
+        db.refresh(user)
+    elif payload.role and user.role != target_role:
+        user.role = target_role
         db.commit()
         db.refresh(user)
 

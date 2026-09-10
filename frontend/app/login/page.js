@@ -2,12 +2,13 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sparkles, GraduationCap, ShieldCheck, BookOpen, ArrowRight, CheckCircle2, Mail, KeyRound } from 'lucide-react';
+import { Sparkles, GraduationCap, ShieldCheck, BookOpen, ArrowRight, CheckCircle2, Mail } from 'lucide-react';
 import { setSession, MOCK_STUDENT_USER, MOCK_FACULTY_USER } from '@/lib/auth';
 import { api } from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
+  const [selectedRole, setSelectedRole] = useState('student'); // 'student' | 'faculty'
   const [email, setEmail] = useState('');
   const [step, setStep] = useState('email'); // 'email' | 'otp'
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -18,7 +19,7 @@ export default function LoginPage() {
   const handleSendOtp = (e) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
-      setError('Please enter a valid institutional email address.');
+      setError('Please enter a valid email address.');
       return;
     }
     setError('');
@@ -35,7 +36,6 @@ export default function LoginPage() {
     newOtp[index] = value.slice(-1);
     setOtp(newOtp);
 
-    // Auto focus next input
     if (value && index < 5) {
       otpInputRefs[index + 1].current?.focus();
     }
@@ -59,21 +59,22 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Call backend API or fallback to session set
-      const response = await api.verifyOtp(email, otpCode).catch(() => null);
+      const response = await api.verifyOtp(email, otpCode, selectedRole).catch(() => null);
       if (response && response.access_token) {
         setSession(response.access_token, response.user);
-        if (response.user.role === 'faculty_admin') {
-          router.push('/admin/dashboard');
+        if (response.user.role === 'faculty_admin' || response.user.role === 'faculty') {
+          router.push('/faculty/dashboard');
         } else {
           router.push('/student/dashboard');
         }
       } else {
-        // Fallback demo user login if API is offline
-        const isFaculty = email.includes('admin') || email.includes('faculty') || email.includes('dr.');
-        const mockUser = isFaculty ? { ...MOCK_FACULTY_USER, email } : { ...MOCK_STUDENT_USER, email };
+        // Fallback automated dev-login bypass if email OTP service is unconfigured
+        const isFaculty = selectedRole === 'faculty';
+        const mockUser = isFaculty 
+          ? { ...MOCK_FACULTY_USER, email, role: 'faculty_admin' } 
+          : { ...MOCK_STUDENT_USER, email, role: 'student' };
         setSession('demo_jwt_token_123456789', mockUser);
-        router.push(isFaculty ? '/admin/dashboard' : '/student/dashboard');
+        router.push(isFaculty ? '/faculty/dashboard' : '/student/dashboard');
       }
     } catch (err) {
       setError(err.message || 'OTP verification failed. Please try again.');
@@ -87,11 +88,11 @@ export default function LoginPage() {
     setLoading(true);
     setTimeout(() => {
       if (role === 'student') {
-        setSession('demo_student_token', MOCK_STUDENT_USER);
+        setSession('demo_student_token', { ...MOCK_STUDENT_USER, role: 'student' });
         router.push('/student/dashboard');
       } else {
-        setSession('demo_faculty_token', MOCK_FACULTY_USER);
-        router.push('/admin/dashboard');
+        setSession('demo_faculty_token', { ...MOCK_FACULTY_USER, role: 'faculty_admin' });
+        router.push('/faculty/dashboard');
       }
     }, 400);
   };
@@ -100,32 +101,31 @@ export default function LoginPage() {
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-12 bg-[#0b0f19] text-gray-100">
       {/* Left Branding Hero Section */}
       <div className="lg:col-span-6 xl:col-span-7 relative flex flex-col justify-between p-8 lg:p-12 overflow-hidden border-r border-gray-800/60 bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-950">
-        {/* Background glow effects */}
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute top-1/2 right-0 w-80 h-80 bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Top Header */}
+        {/* Header Logo */}
         <div className="relative z-10 flex items-center space-x-3">
           <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center shadow-lg shadow-indigo-500/20">
             <GraduationCap className="w-6 h-6 text-white" />
           </div>
           <div>
             <span className="text-xl font-bold tracking-tight text-white">Academic<span className="gradient-text">AI</span></span>
-            <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">v1.0</span>
+            <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">v2.0</span>
           </div>
         </div>
 
-        {/* Hero Central Content */}
+        {/* Hero Content */}
         <div className="relative z-10 my-auto py-12 max-w-xl">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-medium mb-6">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>AI-Powered RAG Academic Portal</span>
+            <span>AI-Powered RAG Academic Portal & Repository</span>
           </div>
           <h1 className="text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight mb-6">
-            Your Intelligent Academic Knowledge & Study Companion.
+            Intelligent Academic Materials & AI RAG Assistant.
           </h1>
           <p className="text-gray-400 text-lg leading-relaxed mb-8">
-            Access verified course materials, past question papers, and query an AI tutor trained strictly on your institution's syllabus with page-level citations.
+            Access OCR-parsed course materials, past question papers, and query an AI tutor trained strictly on your faculty materials with page-level citations.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -133,14 +133,14 @@ export default function LoginPage() {
               <BookOpen className="w-5 h-5 text-indigo-400 shrink-0 mt-1" />
               <div>
                 <h4 className="text-sm font-semibold text-white">Course Repository</h4>
-                <p className="text-xs text-gray-400 mt-0.5">Organized by semester, branch, and unit</p>
+                <p className="text-xs text-gray-400 mt-0.5">Organized by subject, semester, and unit</p>
               </div>
             </div>
             <div className="glass-panel p-4 rounded-xl flex items-start space-x-3">
               <ShieldCheck className="w-5 h-5 text-purple-400 shrink-0 mt-1" />
               <div>
                 <h4 className="text-sm font-semibold text-white">Strict Source Citations</h4>
-                <p className="text-xs text-gray-400 mt-0.5">RAG responses linked to page numbers</p>
+                <p className="text-xs text-gray-400 mt-0.5">Page-level material search & RAG</p>
               </div>
             </div>
           </div>
@@ -148,49 +148,66 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="relative z-10 text-xs text-gray-500 flex items-center justify-between border-t border-gray-800/80 pt-6">
-          <span>© 2026 AcademicAI. All rights reserved.</span>
-          <div className="flex space-x-4">
-            <a href="#" className="hover:text-gray-400 transition-colors">Privacy</a>
-            <a href="#" className="hover:text-gray-400 transition-colors">Terms</a>
-            <a href="#" className="hover:text-gray-400 transition-colors">Support</a>
-          </div>
+          <span>© 2026 AcademicAI Portal. All rights reserved.</span>
         </div>
       </div>
 
-      {/* Right Login Form Section */}
+      {/* Right Login Section */}
       <div className="lg:col-span-6 xl:col-span-5 flex flex-col justify-center p-8 lg:p-14 bg-[#0d121f]">
         <div className="max-w-md w-full mx-auto">
-          {/* Card Header */}
-          <div className="mb-8">
-            <h2 className="text-2xl lg:text-3xl font-bold text-white tracking-tight">Institutional Login</h2>
-            <p className="text-gray-400 text-sm mt-2">
-              Enter your student or faculty email to receive a 6-digit OTP code.
+          {/* Role Selector Tabs */}
+          <div className="mb-6">
+            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Select Portal Role</label>
+            <div className="grid grid-cols-2 gap-2 p-1.5 rounded-xl bg-gray-900 border border-gray-800">
+              <button
+                type="button"
+                onClick={() => setSelectedRole('student')}
+                className={`py-2.5 px-4 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
+                  selectedRole === 'student'
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                <GraduationCap className="w-4 h-4" />
+                <span>Student Portal</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedRole('faculty')}
+                className={`py-2.5 px-4 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
+                  selectedRole === 'faculty'
+                    ? 'bg-purple-600 text-white shadow-md'
+                    : 'text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>Faculty Portal</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <h2 className="text-2xl lg:text-3xl font-bold text-white tracking-tight">
+              {selectedRole === 'faculty' ? 'Faculty Sign In' : 'Student Sign In'}
+            </h2>
+            <p className="text-gray-400 text-sm mt-1">
+              Enter your email address to receive an OTP code.
             </p>
           </div>
 
-          {/* Quick Demo Login Toggles */}
-          <div className="mb-8 p-4 rounded-xl bg-gray-900/80 border border-indigo-500/20">
-            <span className="text-xs font-semibold text-indigo-300 uppercase tracking-wider block mb-2.5">
-              🚀 Fast Demo Sign-In
+          {/* Dev Demo Sign-in */}
+          <div className="mb-6 p-4 rounded-xl bg-gray-900/80 border border-indigo-500/20">
+            <span className="text-xs font-semibold text-indigo-300 uppercase tracking-wider block mb-2">
+              ⚡ Dev-Login Bypass
             </span>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('student')}
-                className="flex items-center justify-center space-x-2 px-3 py-2 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-200 text-xs font-medium transition-all"
-              >
-                <GraduationCap className="w-4 h-4 text-indigo-400" />
-                <span>Student Demo</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('faculty')}
-                className="flex items-center justify-center space-x-2 px-3 py-2 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-200 text-xs font-medium transition-all"
-              >
-                <ShieldCheck className="w-4 h-4 text-purple-400" />
-                <span>Faculty Demo</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => handleDemoLogin(selectedRole)}
+              className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-200 text-xs font-medium transition-all"
+            >
+              <span>Instant {selectedRole === 'faculty' ? 'Faculty' : 'Student'} Sign-In</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {error && (
@@ -203,16 +220,16 @@ export default function LoginPage() {
           {step === 'email' ? (
             <form onSubmit={handleSendOtp} className="space-y-5">
               <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1.5">Institutional Email Address</label>
+                <label className="block text-xs font-medium text-gray-300 mb-1.5">Email Address</label>
                 <div className="relative">
                   <Mail className="w-5 h-5 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="student@academic.edu"
+                    placeholder={selectedRole === 'faculty' ? 'dr.smith@academic.edu' : 'student@academic.edu'}
                     required
-                    className="w-full pl-11 pr-4 py-3 bg-gray-900/90 border border-gray-700/80 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                    className="w-full pl-11 pr-4 py-3 bg-gray-900/90 border border-gray-700/80 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500 transition-all"
                   />
                 </div>
               </div>
@@ -226,7 +243,7 @@ export default function LoginPage() {
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <>
-                    <span>Send Verification OTP</span>
+                    <span>Send OTP Code</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -257,7 +274,7 @@ export default function LoginPage() {
                       value={digit}
                       onChange={(e) => handleOtpChange(idx, e.target.value)}
                       onKeyDown={(e) => handleKeyDown(idx, e)}
-                      className="w-12 h-13 text-center bg-gray-900/90 border border-gray-700/80 rounded-xl text-white text-lg font-bold focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                      className="w-12 h-13 text-center bg-gray-900/90 border border-gray-700/80 rounded-xl text-white text-lg font-bold focus:outline-none focus:border-indigo-500 transition-all"
                     />
                   ))}
                 </div>
@@ -273,7 +290,7 @@ export default function LoginPage() {
                 ) : (
                   <>
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Verify & Login</span>
+                    <span>Verify & Continue</span>
                   </>
                 )}
               </button>

@@ -6,6 +6,7 @@ from app.models.user import UserRole
 class VerifyOTPRequest(BaseModel):
     email: EmailStr
     token: str
+    role: str | None = None
 
 class UserResponse(BaseModel):
     id: UUID
