@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Bot, MessageSquare, X, Send, Sparkles, Trash2, BookOpen, ExternalLink, RefreshCw } from 'lucide-react';
+import { Bot, MessageSquare, X, Send, Sparkles, Trash2, BookOpen, ExternalLink, RefreshCw, Paperclip, FileText } from 'lucide-react';
 import { api } from '@/lib/api';
 import { getDocumentUrl } from '@/lib/supabase';
 
@@ -10,14 +10,16 @@ export default function FloatingChatWidget() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hello! I am AcademicAI, your intelligent course tutor. Ask me any question about your faculty course materials or topics!'
+      content: 'Hello! I am AcademicAI, your intelligent course tutor. Ask me any question or upload a study document/PDF to get instant answers!'
     }
   ]);
   const [inputQuestion, setInputQuestion] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
 
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -29,19 +31,40 @@ export default function FloatingChatWidget() {
     }
   }, [messages, isOpen]);
 
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     const q = inputQuestion.trim();
-    if (!q || loading) return;
+    if ((!q && !selectedFile) || loading) return;
 
-    // Append user message
-    const userMsg = { role: 'user', content: q };
+    const fileToUpload = selectedFile;
+    const userDisplayMsg = fileToUpload
+      ? `📄 Attached: ${fileToUpload.name}${q ? `\n\n${q}` : ''}`
+      : q;
+
+    const userMsg = { role: 'user', content: userDisplayMsg };
     setMessages(prev => [...prev, userMsg]);
     setInputQuestion('');
+    setSelectedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
     setLoading(true);
 
     try {
-      const response = await api.askQuestion(q, sessionId).catch(() => null);
+      let response = null;
+      if (fileToUpload) {
+        const formData = new FormData();
+        formData.append('file', fileToUpload);
+        if (q) formData.append('question', q);
+        if (sessionId) formData.append('session_id', sessionId);
+        response = await api.uploadChatFile(formData).catch(() => null);
+      } else {
+        response = await api.askQuestion(q, sessionId).catch(() => null);
+      }
 
       if (response && response.answer) {
         if (response.session_id) {
@@ -56,12 +79,11 @@ export default function FloatingChatWidget() {
           }
         ]);
       } else {
-        // Dev / offline fallback response
         setMessages(prev => [
           ...prev,
           {
             role: 'assistant',
-            content: "I could not find relevant explanations for this in the uploaded faculty materials. Please verify if notes for this topic are uploaded.",
+            content: "I could not analyze this question or document. Please check your backend service or try uploading again.",
             sources: []
           }
         ]);
@@ -71,7 +93,7 @@ export default function FloatingChatWidget() {
         ...prev,
         {
           role: 'assistant',
-          content: "Sorry, I encountered an error searching materials. Please check your backend connection.",
+          content: "Sorry, I encountered an error. Please check your backend server connection.",
           sources: []
         }
       ]);
@@ -201,18 +223,53 @@ export default function FloatingChatWidget() {
 
           {/* Chat Input Form */}
           <form onSubmit={handleSendMessage} className="p-3 bg-gray-900/90 border-t border-gray-800 shrink-0">
+            {selectedFile && (
+              <div className="mb-2 px-2.5 py-1 bg-indigo-900/40 border border-indigo-500/30 rounded-lg flex items-center justify-between text-[11px] text-indigo-200">
+                <div className="flex items-center space-x-1.5 truncate">
+                  <FileText className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                  <span className="truncate">{selectedFile.name}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedFile(null);
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                  }}
+                  className="text-gray-400 hover:text-white ml-2"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            )}
+
             <div className="relative flex items-center">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg"
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={loading}
+                className="absolute left-2.5 text-gray-400 hover:text-indigo-400 transition-colors disabled:opacity-40"
+                title="Attach Document / Notes (PDF, Image, Text)"
+              >
+                <Paperclip className="w-4 h-4" />
+              </button>
               <input
                 type="text"
                 value={inputQuestion}
                 onChange={(e) => setInputQuestion(e.target.value)}
-                placeholder="Ask about your course materials..."
+                placeholder={selectedFile ? "Ask about attached file..." : "Ask or upload course material..."}
                 disabled={loading}
-                className="w-full pl-3.5 pr-10 py-2.5 bg-[#0b0f19] border border-gray-700/80 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all disabled:opacity-50"
+                className="w-full pl-9 pr-10 py-2.5 bg-[#0b0f19] border border-gray-700/80 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all disabled:opacity-50"
               />
               <button
                 type="submit"
-                disabled={loading || !inputQuestion.trim()}
+                disabled={loading || (!inputQuestion.trim() && !selectedFile)}
                 className="absolute right-1.5 p-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition-all disabled:opacity-40"
               >
                 <Send className="w-3.5 h-3.5" />

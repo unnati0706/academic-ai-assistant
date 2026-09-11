@@ -31,14 +31,15 @@ app = FastAPI(
 )
 
 # Enable CORS for frontend client
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+if settings.CORS_ORIGINS == "*":
+    origins = ["*"]
+else:
+    origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -59,6 +60,32 @@ def root():
 @app.get("/health", tags=["Health"])
 def health_check():
     return {"status": "ok", "service": settings.PROJECT_NAME}
+
+@app.get("/health/supabase", tags=["Health"])
+def supabase_health_check():
+    from sqlalchemy import text
+    from app.database.session import engine
+    from app.services.storage_service import storage_service
+    db_status = "error"
+    storage_status = "error"
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1;"))
+            db_status = "connected"
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+
+    try:
+        buckets = storage_service.client.storage.list_buckets()
+        storage_status = f"connected ({len(buckets)} buckets)"
+    except Exception as e:
+        storage_status = f"error: {str(e)}"
+
+    return {
+        "status": "ok" if db_status == "connected" else "degraded",
+        "supabase_database": db_status,
+        "supabase_storage": storage_status
+    }
 
 if __name__ == "__main__":
     import uvicorn

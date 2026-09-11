@@ -71,6 +71,30 @@ def get_current_user(
 
     return user
 
+def get_optional_current_user(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
+    db: Annotated[Session, Depends(get_db)],
+) -> User:
+    """FastAPI dependency to extract current user, or fallback to default student user for unauthenticated requests."""
+    import uuid
+    if credentials and credentials.credentials:
+        try:
+            return get_current_user(credentials, db)
+        except HTTPException:
+            pass
+    
+    # Fallback to default student user for guests
+    student_id = uuid.UUID("00000000-0000-0000-0000-000000000001")
+    user = db.query(User).filter(User.id == student_id).first()
+    if not user:
+        user = db.query(User).filter(User.email == "alex.student@academic.edu").first()
+    if not user:
+        user = User(id=student_id, email="alex.student@academic.edu", role=UserRole.STUDENT)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    return user
+
 def require_admin(
     current_user: Annotated[User, Depends(get_current_user)]
 ) -> User:

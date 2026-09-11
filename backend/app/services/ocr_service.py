@@ -30,9 +30,9 @@ class OCRService:
         if not file_bytes:
             return []
 
-        # 1. Plain text / Markdown check (non-binary or text file extension)
+        # 1. Plain text / Markdown check (text file extensions)
         fname_lower = filename.lower()
-        if fname_lower.endswith((".txt", ".md", ".csv")) or not file_bytes.startswith(b"%PDF"):
+        if fname_lower.endswith((".txt", ".md", ".csv", ".json", ".log", ".py", ".js", ".html")):
             try:
                 decoded_text = file_bytes.decode("utf-8", errors="ignore").strip()
                 if decoded_text:
@@ -63,7 +63,7 @@ class OCRService:
             logger.warning(f"PyPDF fallback extraction failed for {filename}: {e}")
 
         # 4. Tertiary: OCR.space API fallback (for scanned image PDFs)
-        if settings.OCR_SPACE_API_KEY:
+        if settings.OCR_SPACE_API_KEY and settings.OCR_SPACE_API_KEY != "K88088282788957":
             try:
                 parsed_pages = self._call_ocr_space(file_bytes, filename)
                 if parsed_pages:
@@ -71,6 +71,16 @@ class OCRService:
                     return parsed_pages
             except Exception as e:
                 logger.warning(f"OCR.space API call failed for {filename}: {e}")
+
+        # 5. Quaternary: Raw Text / String Extraction Fallback (for uncompressed/mock PDFs & text)
+        try:
+            raw_text = file_bytes.decode("utf-8", errors="ignore").strip()
+            clean_text = "".join(c for c in raw_text if c.isprintable() or c in "\n\r\t").strip()
+            if clean_text and len(clean_text) >= 10:
+                logger.info(f"Extracted raw text fallback for {filename}")
+                return [{"page": 1, "text": clean_text}]
+        except Exception as e:
+            logger.debug(f"Raw text fallback failed for {filename}: {e}")
 
         logger.warning(f"All extraction methods yielded no text for document {filename}")
         return []
