@@ -1,4 +1,5 @@
 services:
+  # ── Backend: FastAPI (Python) Web Service ─────────────────────────────────
   - type: web
     name: academic-ai-backend
     runtime: python
@@ -10,7 +11,7 @@ services:
     healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
-        sync: false
+        sync: false           # Set manually in Render dashboard
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
@@ -20,6 +21,31 @@ services:
       - key: OCR_SPACE_API_KEY
         sync: false
       - key: CORS_ORIGINS
-        value: "*"
+        sync: false           # Set to your frontend URL after deploy
       - key: PYTHON_VERSION
         value: "3.11.9"
+
+  # ── Frontend: Next.js Static Export (Static Site) ─────────────────────────
+  - type: web
+    name: academic-ai-frontend
+    runtime: static
+    region: oregon
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./out
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        sync: false           # Set to your backend URL: https://academic-ai-backend.onrender.com/api/v1
+      - key: NEXT_PUBLIC_BASE_PATH
+        value: ""
+      - key: NODE_VERSION
+        value: "20.11.0"
