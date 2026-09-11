@@ -37,6 +37,7 @@ jobs:
         working-directory: frontend
         env:
           NEXT_PUBLIC_BASE_PATH: "/academic-ai-assistant"
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
       - name: Deploy to gh-pages branch
         uses: JamesIves/github-pages-deploy-action@v4
