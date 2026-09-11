@@ -6,6 +6,11 @@ import json
 import uuid
 from typing import Any, List, Dict
 from pypdf import PdfReader
+try:
+    import pdfplumber
+except ImportError:
+    pdfplumber = None
+
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -15,24 +20,78 @@ OCR_SPACE_URL = "https://api.ocr.space/parse/image"
 class OCRService:
     def parse_document(self, file_bytes: bytes, filename: str = "document.pdf") -> List[Dict[str, Any]]:
         """
-        Parse uploaded document bytes using OCR.space REST API with automatic pypdf safety net fallback.
-        Returns a list of page objects: [{"page": 1, "text": "..."}]
+        Parse uploaded document bytes into page objects: [{"page": 1, "text": "..."}]
+        Extraction pipeline:
+        1. Direct UTF-8 text check (for .txt / .md files).
+        2. pdfplumber extraction.
+        3. PyPDF extraction fallback.
+        4. OCR.space REST API for scanned/image PDFs.
         """
-        parsed_pages = []
-        
-        # 1. Attempt OCR.space API parsing
+        if not file_bytes:
+            return []
+
+        # 1. Plain text / Markdown check (non-binary or text file extension)
+        fname_lower = filename.lower()
+        if fname_lower.endswith((".txt", ".md", ".csv")) or not file_bytes.startswith(b"%PDF"):
+            try:
+                decoded_text = file_bytes.decode("utf-8", errors="ignore").strip()
+                if decoded_text:
+                    logger.info(f"Successfully extracted text directly from text file {filename}")
+                    return [{"page": 1, "text": decoded_text}]
+            except Exception as e:
+                logger.debug(f"Direct UTF-8 decode failed for {filename}: {e}")
+
+        parsed_pages: List[Dict[str, Any]] = []
+
+        # 2. Primary: pdfplumber extraction
+        if pdfplumber:
+            try:
+                parsed_pages = self._extract_pdfplumber(file_bytes)
+                if parsed_pages and any(p.get("text", "").strip() for p in parsed_pages):
+                    logger.info(f"Successfully extracted {len(parsed_pages)} pages via pdfplumber.")
+                    return parsed_pages
+            except Exception as e:
+                logger.warning(f"pdfplumber extraction failed for {filename}: {e}")
+
+        # 3. Secondary: PyPDF fallback
+        try:
+            parsed_pages = self._extract_pypdf(file_bytes)
+            if parsed_pages and any(p.get("text", "").strip() for p in parsed_pages):
+                logger.info(f"Successfully extracted {len(parsed_pages)} pages via pypdf.")
+                return parsed_pages
+        except Exception as e:
+            logger.warning(f"PyPDF fallback extraction failed for {filename}: {e}")
+
+        # 4. Tertiary: OCR.space API fallback (for scanned image PDFs)
         if settings.OCR_SPACE_API_KEY:
             try:
                 parsed_pages = self._call_ocr_space(file_bytes, filename)
+                if parsed_pages:
+                    logger.info(f"Successfully extracted {len(parsed_pages)} pages via OCR.space.")
+                    return parsed_pages
             except Exception as e:
-                logger.warning(f"OCR.space API call failed: {e}. Falling back to local pypdf parser.")
+                logger.warning(f"OCR.space API call failed for {filename}: {e}")
 
-        # 2. Fallback to pypdf if OCR.space returned empty results or failed
-        if not parsed_pages or not any(p.get("text", "").strip() for p in parsed_pages):
-            logger.info("Using pypdf extraction fallback.")
-            parsed_pages = self._fallback_pypdf(file_bytes)
+        logger.warning(f"All extraction methods yielded no text for document {filename}")
+        return []
 
-        return parsed_pages
+    def _extract_pdfplumber(self, file_bytes: bytes) -> List[Dict[str, Any]]:
+        pages_content = []
+        with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
+            for i, page in enumerate(pdf.pages):
+                text = page.extract_text() or ""
+                if text.strip():
+                    pages_content.append({"page": i + 1, "text": text.strip()})
+        return pages_content
+
+    def _extract_pypdf(self, file_bytes: bytes) -> List[Dict[str, Any]]:
+        pages_content = []
+        reader = PdfReader(io.BytesIO(file_bytes))
+        for i, page in enumerate(reader.pages):
+            text = page.extract_text() or ""
+            if text.strip():
+                pages_content.append({"page": i + 1, "text": text.strip()})
+        return pages_content
 
     def _call_ocr_space(self, file_bytes: bytes, filename: str) -> List[Dict[str, Any]]:
         boundary = f"----WebKitFormBoundary{uuid.uuid4().hex}"
@@ -78,17 +137,5 @@ class OCRService:
                     pages.append({"page": i + 1, "text": text})
 
         return pages
-
-    def _fallback_pypdf(self, file_bytes: bytes) -> List[Dict[str, Any]]:
-        pages_content = []
-        try:
-            reader = PdfReader(io.BytesIO(file_bytes))
-            for i, page in enumerate(reader.pages):
-                text = page.extract_text() or ""
-                if text.strip():
-                    pages_content.append({"page": i + 1, "text": text.strip()})
-        except Exception as e:
-            logger.error(f"Error in pypdf fallback extraction: {e}")
-        return pages_content
 
 ocr_service = OCRService()

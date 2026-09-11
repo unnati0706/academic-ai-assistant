@@ -58,7 +58,7 @@
   position: relative;
   border-radius: 0.75rem;
   background: linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
-              linear-gradient(135deg, #6366f1, #a855f7, #06b6d4) border-box;
+    linear-gradient(135deg, #6366f1, #a855f7, #06b6d4) border-box;
   border: 1px solid transparent;
 }
 
@@ -83,16 +83,27 @@
 
 /* Pulsating Animation for Loading State */
 @keyframes pulse-dot {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.3;
     transform: scale(0.8);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.2);
   }
 }
 
-.dot-1 { animation: pulse-dot 1.2s infinite ease-in-out 0s; }
-.dot-2 { animation: pulse-dot 1.2s infinite ease-in-out 0.2s; }
-.dot-3 { animation: pulse-dot 1.2s infinite ease-in-out 0.4s; }
+.dot-1 {
+  animation: pulse-dot 1.2s infinite ease-in-out 0s;
+}
+
+.dot-2 {
+  animation: pulse-dot 1.2s infinite ease-in-out 0.2s;
+}
+
+.dot-3 {
+  animation: pulse-dot 1.2s infinite ease-in-out 0.4s;
+}

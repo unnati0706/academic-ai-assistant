@@ -70,8 +70,8 @@ export default function LoginPage() {
       } else {
         // Fallback automated dev-login bypass if email OTP service is unconfigured
         const isFaculty = selectedRole === 'faculty';
-        const mockUser = isFaculty 
-          ? { ...MOCK_FACULTY_USER, email, role: 'faculty_admin' } 
+        const mockUser = isFaculty
+          ? { ...MOCK_FACULTY_USER, email, role: 'faculty_admin' }
           : { ...MOCK_STUDENT_USER, email, role: 'student' };
         setSession('demo_jwt_token_123456789', mockUser);
         router.push(isFaculty ? '/faculty/dashboard' : '/student/dashboard');
@@ -162,11 +162,10 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setSelectedRole('student')}
-                className={`py-2.5 px-4 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
-                  selectedRole === 'student'
+                className={`py-2.5 px-4 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-2 ${selectedRole === 'student'
                     ? 'bg-indigo-600 text-white shadow-md'
                     : 'text-gray-400 hover:text-gray-200'
-                }`}
+                  }`}
               >
                 <GraduationCap className="w-4 h-4" />
                 <span>Student Portal</span>
@@ -174,11 +173,10 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setSelectedRole('faculty')}
-                className={`py-2.5 px-4 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
-                  selectedRole === 'faculty'
+                className={`py-2.5 px-4 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-2 ${selectedRole === 'faculty'
                     ? 'bg-purple-600 text-white shadow-md'
                     : 'text-gray-400 hover:text-gray-200'
-                }`}
+                  }`}
               >
                 <ShieldCheck className="w-4 h-4" />
                 <span>Faculty Portal</span>

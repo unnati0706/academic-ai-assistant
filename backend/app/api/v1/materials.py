@@ -38,6 +38,9 @@ def get_materials(
     """Retrieve list of active academic materials with optional query filters."""
     query = db.query(Material, Subject).join(Subject, Material.subject_id == Subject.id)
 
+    # Filter out archived materials - strict status filter for student endpoints
+    query = query.filter(or_(Material.status == "ACTIVE", Material.status == "active"))
+
     if semester is not None:
         query = query.filter(Material.semester == semester)
     if subject_id is not None:
@@ -163,7 +166,7 @@ async def upload_material_endpoint(
         file_url=file_url,
         uploaded_by=faculty_id,
         version=1,
-        status="active"
+        status="ACTIVE"
     )
     db.add(material)
     db.commit()
@@ -177,23 +180,21 @@ async def upload_material_endpoint(
     res.subject_name = subject.name
     return res
 
-@router.patch("/{material_id}/archive", response_model=MaterialResponse)
+@router.patch("/{material_id}/archive")
 def archive_material(material_id: uuid.UUID, db: Session = Depends(get_db)):
-    """Archive a material by setting status = 'archived'."""
+    """Toggle material status between ACTIVE and ARCHIVED."""
     material = db.query(Material).filter(Material.id == material_id).first()
     if not material:
         raise HTTPException(status_code=404, detail="Material not found")
 
-    material.status = "archived"
+    if material.status and material.status.upper() == "ARCHIVED":
+        material.status = "ACTIVE"
+    else:
+        material.status = "ARCHIVED"
     db.commit()
     db.refresh(material)
 
-    subject = db.query(Subject).filter(Subject.id == material.subject_id).first()
-    res = MaterialResponse.model_validate(material)
-    if subject:
-        res.subject_code = subject.code
-        res.subject_name = subject.name
-    return res
+    return {"message": "Status updated successfully", "status": material.status}
 
 @router.delete("/{material_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_material(material_id: uuid.UUID, db: Session = Depends(get_db)):

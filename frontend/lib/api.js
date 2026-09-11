@@ -5,7 +5,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/a
  */
 export async function apiFetch(endpoint, options = {}) {
   const token = typeof window !== "undefined" ? localStorage.getItem("academic_ai_token") : null;
-  
+
   const headers = { ...options.headers };
 
   // Do not set Content-Type if body is FormData
@@ -93,12 +93,12 @@ export const api = {
   getAnnouncements: () => apiFetch("/announcements"),
 
   // RAG Chat
-  askQuestion: (question, session_id = null) => 
+  askQuestion: (question, session_id = null) =>
     apiFetch("/chat", {
       method: "POST",
       body: JSON.stringify({ question, session_id }),
     }),
-  
+
   getChatSessions: () => apiFetch("/chat/sessions"),
   getChatSessionDetails: (sessionId) => apiFetch(`/chat/sessions/${sessionId}`),
 };

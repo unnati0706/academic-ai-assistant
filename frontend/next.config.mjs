@@ -1,6 +1,16 @@
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === 'production';
+const repositoryName = 'academic-ai-assistant';
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? (isProd ? `/${repositoryName}` : '');
+
 const nextConfig = {
-  /* config options here */
+  output: 'export',
+  basePath: basePath,
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;
+

@@ -133,11 +133,12 @@ export default function FacultyDashboard() {
 
     setActionLoading(prev => ({ ...prev, [id]: 'archive' }));
     try {
-      await api.archiveMaterial(id);
-      setMaterials(prev => prev.map(m => m.id === id ? { ...m, status: 'archived' } : m));
+      const res = await api.archiveMaterial(id);
+      const returnedStatus = res?.status || 'ARCHIVED';
+      setMaterials(prev => prev.map(m => m.id === id ? { ...m, status: returnedStatus } : m));
     } catch (err) {
       console.error("Archive error:", err);
-      alert("Failed to archive material: " + err.message);
+      alert("Failed to update material status: " + err.message);
     } finally {
       setActionLoading(prev => ({ ...prev, [id]: null }));
     }
@@ -361,11 +362,11 @@ export default function FacultyDashboard() {
                       </td>
                       <td className="px-3 py-3.5">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                          mat.status === 'archived'
+                          (mat.status || '').toUpperCase() === 'ARCHIVED'
                             ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
                             : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                         }`}>
-                          {mat.status || 'active'}
+                          {(mat.status || 'ACTIVE').toUpperCase() === 'ARCHIVED' ? 'ARCHIVED' : 'ACTIVE'}
                         </span>
                       </td>
                       <td className="px-4 py-3.5 text-right">
@@ -396,9 +397,13 @@ export default function FacultyDashboard() {
 
                           <button
                             onClick={() => handleArchive(mat.id)}
-                            disabled={actionLoading[mat.id] === 'archive' || mat.status === 'archived'}
-                            className="p-1.5 rounded-lg bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 transition-colors disabled:opacity-40"
-                            title="Archive Material"
+                            disabled={actionLoading[mat.id] === 'archive'}
+                            className={`p-1.5 rounded-lg border transition-colors disabled:opacity-40 ${
+                              (mat.status || '').toUpperCase() === 'ARCHIVED'
+                                ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                : 'bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+                            }`}
+                            title={(mat.status || '').toUpperCase() === 'ARCHIVED' ? "Restore / Unarchive Material" : "Archive Material"}
                           >
                             <Archive className="w-3.5 h-3.5" />
                           </button>
