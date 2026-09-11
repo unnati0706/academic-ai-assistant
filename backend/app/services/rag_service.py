@@ -50,8 +50,8 @@ class RAGService:
                         base_url="https://api.x.ai/v1"
                     )
                     self.is_grok = True
-                    self.model_name = "grok-2-latest"
-                    logger.info("Initialized xAI Grok Client for RAG Service with model grok-2-latest.")
+                    self.model_name = "grok-beta"
+                    logger.info("Initialized xAI Grok Client for RAG Service with model grok-beta.")
                 except Exception as e:
                     logger.warning(f"Could not initialize Grok Client: {e}")
             elif self.ai_key.startswith("sk-") and openai:
