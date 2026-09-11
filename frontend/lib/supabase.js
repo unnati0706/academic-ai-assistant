@@ -23,7 +23,14 @@ export function getDocumentUrl(fileUrlOrPath, bucketName = 'academic-documents',
     return '#';
   }
 
+  const str = String(fileUrlOrPath).trim();
+
+  // If already a full HTTP(S) URL, ensure safe encoding
+  if (str.startsWith('http://') || str.startsWith('https://')) {
+    return encodeURI(str);
+  }
+
   // Extract pure filename
-  const filename = String(fileUrlOrPath).split('/').pop();
-  return `${SUPABASE_URL}/storage/v1/object/public/${bucketName}/${filename}`;
+  const filename = str.split('/').pop();
+  return `${SUPABASE_URL}/storage/v1/object/public/${bucketName}/${encodeURIComponent(filename)}`;
 }

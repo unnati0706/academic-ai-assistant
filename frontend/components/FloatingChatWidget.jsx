@@ -4,9 +4,11 @@ import { useState, useRef, useEffect } from 'react';
 import { Bot, MessageSquare, X, Send, Sparkles, Trash2, BookOpen, ExternalLink, RefreshCw, Paperclip, FileText } from 'lucide-react';
 import { api } from '@/lib/api';
 import { getDocumentUrl } from '@/lib/supabase';
+import PdfViewerModal from '@/components/PdfViewerModal';
 
 export default function FloatingChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const [activePdf, setActivePdf] = useState(null);
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -134,7 +136,7 @@ export default function FloatingChatWidget() {
 
       {/* Floating Popup Drawer Chat Modal */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-96 max-w-[calc(100vw-3rem)] h-[540px] max-h-[calc(100vh-8rem)] z-50 bg-[#0d121f] border border-indigo-500/30 rounded-2xl shadow-2xl flex flex-col overflow-hidden backdrop-blur-xl animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="fixed bottom-20 right-3 sm:right-6 w-[calc(100vw-1.5rem)] sm:w-96 max-w-[calc(100vw-1.5rem)] sm:max-w-md h-[520px] max-h-[calc(100vh-6.5rem)] z-50 bg-[#0d121f] border border-indigo-500/30 rounded-2xl shadow-2xl flex flex-col overflow-hidden backdrop-blur-xl animate-in fade-in slide-in-from-bottom-5 duration-200">
           {/* Header */}
           <div className="gradient-bg p-4 flex items-center justify-between text-white shrink-0">
             <div className="flex items-center space-x-2.5">
@@ -194,14 +196,17 @@ export default function FloatingChatWidget() {
                         <div key={sIdx} className="text-[10px] text-gray-400 flex items-center justify-between">
                           <span className="truncate max-w-[180px]">{src.title} (Page {src.page_number})</span>
                           {(src.file_url || src.file_path || src.material_id) && (
-                            <a
-                              href={getDocumentUrl(src.file_url || src.file_path, 'academic-documents', src.material_id)}
-                              target="_blank"
-                              rel="noreferrer"
+                            <button
+                              type="button"
+                              onClick={() => setActivePdf({
+                                url: getDocumentUrl(src.file_url || src.file_path, 'academic-documents', src.material_id),
+                                title: `${src.title} (Page ${src.page_number})`
+                              })}
                               className="text-indigo-400 hover:text-indigo-300 ml-1 inline-flex items-center"
+                              title="Preview PDF"
                             >
                               <ExternalLink className="w-2.5 h-2.5" />
-                            </a>
+                            </button>
                           )}
                         </div>
                       ))}
@@ -278,6 +283,14 @@ export default function FloatingChatWidget() {
           </form>
         </div>
       )}
+
+      {/* Universal Cross-Device PDF Viewer Modal */}
+      <PdfViewerModal
+        isOpen={Boolean(activePdf)}
+        onClose={() => setActivePdf(null)}
+        fileUrl={activePdf?.url}
+        title={activePdf?.title}
+      />
     </>
   );
 }

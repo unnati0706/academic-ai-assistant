@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, Search, User, LogOut, ChevronDown, BookOpen, GraduationCap } from 'lucide-react';
+import { Bell, User, LogOut, ChevronDown, BookOpen, GraduationCap, Menu } from 'lucide-react';
 import { getStoredUser, clearSession } from '@/lib/auth';
 
-export default function Header() {
+export default function Header({ onOpenMobileSidebar = () => {} }) {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -21,29 +21,44 @@ export default function Header() {
   };
 
   return (
-    <header className="h-16 border-b border-gray-800/60 bg-[#0d121f]/80 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30">
-      {/* Left side: Semester Badge & Branch info */}
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold">
-          <GraduationCap className="w-4 h-4 text-indigo-400" />
-          <span>Semester 5 • Computer Science & Engineering</span>
+    <header className="h-16 border-b border-gray-800/60 bg-[#0d121f]/80 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30">
+      {/* Left side: Mobile Menu Button & Semester Badge */}
+      <div className="flex items-center space-x-2.5 sm:space-x-4">
+        {/* Mobile Hamburger Button */}
+        <button
+          type="button"
+          onClick={onOpenMobileSidebar}
+          className="md:hidden p-2 rounded-xl bg-gray-800/80 hover:bg-gray-700/80 text-gray-300 hover:text-white transition-colors border border-gray-700/50"
+          title="Open menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center space-x-2 px-2.5 sm:px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold">
+          <GraduationCap className="w-4 h-4 text-indigo-400 shrink-0" />
+          <span className="hidden sm:inline">Semester 5 • Computer Science & Engineering</span>
+          <span className="sm:hidden">Sem 5 • CSE</span>
         </div>
       </div>
 
       {/* Right side: Search, Notifications, Profile */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2 sm:space-x-4">
         {/* Notifications Toggle */}
         <div className="relative">
           <button
-            onClick={() => setShowNotifications(!showNotifications)}
+            onClick={() => {
+              setShowNotifications(!showNotifications);
+              setShowProfileMenu(false);
+            }}
             className="w-9 h-9 rounded-lg bg-gray-800/80 hover:bg-gray-700/80 border border-gray-700/50 flex items-center justify-center text-gray-300 transition-colors relative"
+            title="Announcements"
           >
             <Bell className="w-4 h-4" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-indigo-500"></span>
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 glass-panel rounded-xl shadow-2xl p-4 z-50 border border-gray-700/60">
+            <div className="absolute right-0 mt-2 w-72 sm:w-80 glass-panel rounded-xl shadow-2xl p-4 z-50 border border-gray-700/60 animate-in fade-in duration-150">
               <div className="flex items-center justify-between pb-2 border-b border-gray-800 mb-3">
                 <span className="text-xs font-bold text-white uppercase tracking-wider">Announcements</span>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-semibold">2 New</span>
@@ -67,21 +82,24 @@ export default function Header() {
         {/* User Profile Menu */}
         <div className="relative">
           <button
-            onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="flex items-center space-x-3 p-1.5 rounded-xl hover:bg-gray-800/60 transition-colors border border-transparent hover:border-gray-700/50"
+            onClick={() => {
+              setShowProfileMenu(!showProfileMenu);
+              setShowNotifications(false);
+            }}
+            className="flex items-center space-x-2 sm:space-x-3 p-1 sm:p-1.5 rounded-xl hover:bg-gray-800/60 transition-colors border border-transparent hover:border-gray-700/50"
           >
-            <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white font-bold text-xs shadow-md shadow-indigo-500/20">
+            <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white font-bold text-xs shadow-md shadow-indigo-500/20 shrink-0">
               {user?.name ? user.name.charAt(0) : 'S'}
             </div>
             <div className="hidden sm:block text-left">
               <div className="text-xs font-semibold text-white leading-tight">{user?.name || 'Student Portal'}</div>
               <div className="text-[10px] text-indigo-300">{user?.role === 'faculty_admin' ? 'Faculty Admin' : 'CS Student'}</div>
             </div>
-            <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+            <ChevronDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
           </button>
 
           {showProfileMenu && (
-            <div className="absolute right-0 mt-2 w-56 glass-panel rounded-xl shadow-2xl p-2 z-50 border border-gray-700/60">
+            <div className="absolute right-0 mt-2 w-52 sm:w-56 glass-panel rounded-xl shadow-2xl p-2 z-50 border border-gray-700/60 animate-in fade-in duration-150">
               <div className="px-3 py-2 border-b border-gray-800 mb-1">
                 <p className="text-xs font-semibold text-white truncate">{user?.name || 'Student'}</p>
                 <p className="text-[10px] text-gray-400 truncate">{user?.email || 'student@academic.edu'}</p>
