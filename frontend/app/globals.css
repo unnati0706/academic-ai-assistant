@@ -107,3 +107,37 @@
 .dot-3 {
   animation: pulse-dot 1.2s infinite ease-in-out 0.4s;
 }
+
+/* ── Markdown body inside chat messages ── */
+.markdown-body {
+  line-height: 1.65;
+  color: #d1d5db;
+}
+
+.markdown-body > *:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* ── Message fade-in animation ── */
+@keyframes msgFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.msg-enter {
+  animation: msgFadeIn 0.25s ease forwards;
+}
+
+/* ── Document Intelligence panel slide-in ── */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease forwards;
+}

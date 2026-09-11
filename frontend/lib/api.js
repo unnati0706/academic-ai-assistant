@@ -99,6 +99,13 @@ export const api = {
       body: JSON.stringify({ question, session_id }),
     }),
 
+  uploadChatFile: (formData) =>
+    apiFetch("/chat/upload", {
+      method: "POST",
+      body: formData,
+      // Note: response includes document_metadata field for Document Intelligence Panel
+    }),
+
   getChatSessions: () => apiFetch("/chat/sessions"),
   getChatSessionDetails: (sessionId) => apiFetch(`/chat/sessions/${sessionId}`),
 };

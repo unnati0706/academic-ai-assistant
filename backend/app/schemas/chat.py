@@ -1,5 +1,6 @@
 from uuid import UUID
 from datetime import datetime
+from typing import Optional, List
 from pydantic import BaseModel
 
 class ChatRequest(BaseModel):
@@ -12,10 +13,19 @@ class SourceCitation(BaseModel):
     file_url: str
     page_number: int
 
+class DocumentMetadata(BaseModel):
+    filename: str
+    page_count: int
+    word_count: int
+    key_topics: List[str] = []
+    char_count: int = 0
+    sections_found: List[str] = []
+
 class ChatResponse(BaseModel):
     session_id: UUID
     answer: str
     sources: list[SourceCitation]
+    document_metadata: Optional[DocumentMetadata] = None
 
 class ChatMessageResponse(BaseModel):
     id: UUID
