@@ -39,11 +39,25 @@ class RAGService:
         self.ai_key = settings.AI_API_KEY
         self.openai_client = None
         self.genai_client = None
+        self.is_grok = False
+        self.model_name = "gpt-4o-mini"
 
         if self.ai_key and self.ai_key != "test_key":
-            if self.ai_key.startswith("sk-") and openai:
+            if (self.ai_key.startswith("xai-") or "x.ai" in self.ai_key) and openai:
+                try:
+                    self.openai_client = openai.OpenAI(
+                        api_key=self.ai_key,
+                        base_url="https://api.x.ai/v1"
+                    )
+                    self.is_grok = True
+                    self.model_name = "grok-2-latest"
+                    logger.info("Initialized xAI Grok Client for RAG Service with model grok-2-latest.")
+                except Exception as e:
+                    logger.warning(f"Could not initialize Grok Client: {e}")
+            elif self.ai_key.startswith("sk-") and openai:
                 try:
                     self.openai_client = openai.OpenAI(api_key=self.ai_key)
+                    self.model_name = "gpt-4o-mini"
                     logger.info("Initialized OpenAI Client for RAG Service.")
                 except Exception as e:
                     logger.warning(f"Could not initialize OpenAI Client: {e}")
@@ -95,8 +109,8 @@ class RAGService:
         if not text or not text.strip():
             return [0.0] * EMBEDDING_DIM
 
-        # Try OpenAI
-        if self.openai_client:
+        # Try OpenAI (only if not Grok, since xAI is chat completions only)
+        if self.openai_client and not self.is_grok:
             try:
                 res = self.openai_client.embeddings.create(
                     input=text,
@@ -452,11 +466,11 @@ class RAGService:
 
         answer_text = ""
 
-        # Attempt OpenAI Call
+        # Attempt OpenAI or Grok Call
         if self.openai_client:
             try:
                 response = self.openai_client.chat.completions.create(
-                    model="gpt-4o-mini",
+                    model=self.model_name,
                     messages=[
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt}
@@ -467,7 +481,8 @@ class RAGService:
                 if response.choices and response.choices[0].message.content:
                     answer_text = response.choices[0].message.content.strip()
             except Exception as e:
-                logger.warning(f"OpenAI ChatCompletion call failed: {e}")
+                provider = "Grok" if self.is_grok else "OpenAI"
+                logger.warning(f"{provider} ChatCompletion call failed: {e}")
 
         # Attempt Google GenAI Call if OpenAI not used or failed
         if not answer_text and self.genai_client:
@@ -605,11 +620,11 @@ class RAGService:
 
         answer_text = ""
 
-        # --- Step 5: Call LLM ---
+        # --- Step 5: Call LLM (Grok or OpenAI) ---
         if self.openai_client:
             try:
                 response = self.openai_client.chat.completions.create(
-                    model="gpt-4o-mini",
+                    model=self.model_name,
                     messages=[
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt}
@@ -620,7 +635,8 @@ class RAGService:
                 if response.choices and response.choices[0].message.content:
                     answer_text = response.choices[0].message.content.strip()
             except Exception as e:
-                logger.warning(f"OpenAI ChatCompletion call for uploaded file failed: {e}")
+                provider = "Grok" if self.is_grok else "OpenAI"
+                logger.warning(f"{provider} ChatCompletion call for uploaded file failed: {e}")
 
         if not answer_text and self.genai_client:
             try:
