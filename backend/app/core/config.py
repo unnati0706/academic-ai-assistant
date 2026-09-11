@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Resolve path to backend/.env
+# Resolve path to backend/.env (only used locally; on Render env vars are injected directly)
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 ENV_FILE = BASE_DIR / ".env"
 
@@ -15,9 +15,11 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_ROLE_KEY: str
     AI_API_KEY: str
     OCR_SPACE_API_KEY: str = "K88088282788957"
+    CORS_ORIGINS: str = "*"
 
     model_config = SettingsConfigDict(
-        env_file=str(ENV_FILE),
+        # Load .env file if it exists (local dev); silently ignored on Render
+        env_file=str(ENV_FILE) if ENV_FILE.exists() else None,
         env_file_encoding="utf-8",
         extra="ignore"
     )

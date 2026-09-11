@@ -3,17 +3,21 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 
-# Create SQLAlchemy engine
-# pool_pre_ping ensures stale connections are re-established
+# Production-safe pool config for Render free tier + Supabase
+# pool_recycle: recycle connections every 5min to avoid idle timeouts
+# pool_pre_ping: verify connections are alive before use
 engine = create_engine(
     settings.DATABASE_URL,
     pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20
+    pool_size=5,
+    max_overflow=10,
+    pool_recycle=300,
+    pool_timeout=30,
 )
 
 # Session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 def get_db() -> Generator:
     """Dependency for obtaining database sessions in FastAPI routes."""
