@@ -41,6 +41,7 @@ class RAGService:
         self.genai_client = None
         self.is_grok = False
         self.model_name = "gpt-4o-mini"
+        self._session_uploaded_docs: Dict[str, Dict[str, Any]] = {}
 
         if self.ai_key and self.ai_key != "test_key":
             if (self.ai_key.startswith("xai-") or "x.ai" in self.ai_key) and openai:
@@ -292,16 +293,71 @@ class RAGService:
         logger.info(f"Ingested {inserted_count} chunks for material {material_id}")
         return inserted_count
 
-    def search_similar_chunks(self, db: Session, query: str, top_k: int = 5) -> List[Dict[str, Any]]:
+    def search_similar_chunks(
+        self, db: Session, query: str, top_k: int = 5, target_material_id: Optional[uuid.UUID] = None
+    ) -> List[Dict[str, Any]]:
         """
-        Retrieve relevant document chunks for query across ALL active materials.
-        Pipeline:
-        1. Vector similarity search via pgvector.
-        2. Direct DB search for matching active materials by title/description.
-        3. Keyword matching fallback using ILIKE across chunks and materials.
+        Retrieve relevant document chunks for query across active materials.
+        If a specific material is targeted or identified by name, ONLY chunks from that material are returned (no mixing!).
         """
         matched_chunks = []
         seen_chunk_ids = set()
+        clean_q = query.lower()
+
+        # Step 0: Identify if query specifically targets an uploaded material by title or filename
+        active_materials = db.query(Material).filter(
+            or_(Material.status == "ACTIVE", Material.status == "active")
+        ).all()
+
+        identified_material = None
+        if target_material_id:
+            identified_material = next((m for m in active_materials if m.id == target_material_id), None)
+        else:
+            # Check if query specifically names one of the uploaded documents
+            for mat in active_materials:
+                mat_title_clean = mat.title.lower()
+                # Check direct substring match
+                if mat_title_clean in clean_q or mat_title_clean.replace("-", " ") in clean_q:
+                    identified_material = mat
+                    break
+                # Check significant terms from title (e.g. "unit-2", "stack and queue", "data structure")
+                title_words = [w for w in re.split(r"[\s\-_]+", mat_title_clean) if len(w) > 3]
+                if len(title_words) >= 2 and all(w in clean_q for w in title_words[:2]):
+                    identified_material = mat
+                    break
+
+        # If a specific material is targeted, strictly query chunks from THAT material only (no mixing!)
+        if identified_material:
+            logger.info(f"Targeted material identified: '{identified_material.title}' ({identified_material.id}) - isolating chunks")
+            chunks = db.query(DocumentChunk).filter(DocumentChunk.document_id == identified_material.id).all()
+            if chunks:
+                chunk_dicts = [
+                    {
+                        "chunk_id": str(c.id),
+                        "material_id": str(identified_material.id),
+                        "title": identified_material.title,
+                        "file_url": identified_material.file_url,
+                        "page_number": c.page_number,
+                        "content": c.content,
+                        "semester": identified_material.semester,
+                        "subject_id": str(identified_material.subject_id)
+                    }
+                    for c in chunks
+                ]
+                # Rank these chunks against query
+                ranked = self._in_memory_rag_search(query, chunk_dicts, top_k=top_k)
+                return ranked
+            else:
+                return [{
+                    "chunk_id": str(identified_material.id),
+                    "material_id": str(identified_material.id),
+                    "title": identified_material.title,
+                    "file_url": identified_material.file_url,
+                    "page_number": 1,
+                    "content": f"Course Material: {identified_material.title}\nDescription: {identified_material.description or 'Official course document'}",
+                    "semester": identified_material.semester,
+                    "subject_id": str(identified_material.subject_id)
+                }]
 
         # 1. Vector similarity search across all active materials
         query_embedding = self.generate_embedding(query)
@@ -331,48 +387,7 @@ class RAGService:
             except Exception as e:
                 logger.warning(f"Vector search failed, proceeding to direct DB fallback: {e}")
 
-        # 2. Direct DB search for matching active materials by title / description
-        try:
-            matching_materials = db.query(Material).filter(
-                or_(Material.status == "ACTIVE", Material.status == "active"),
-                or_(Material.title.ilike(f"%{query}%"), Material.description.ilike(f"%{query}%"))
-            ).all()
-
-            for mat in matching_materials:
-                if str(mat.id) not in seen_chunk_ids:
-                    # Retrieve any chunks for this material, or create a synthetic chunk
-                    mat_chunks = db.query(DocumentChunk).filter(DocumentChunk.document_id == mat.id).limit(3).all()
-                    if mat_chunks:
-                        for chunk in mat_chunks:
-                            if chunk.id not in seen_chunk_ids:
-                                matched_chunks.append({
-                                    "chunk_id": str(chunk.id),
-                                    "material_id": str(mat.id),
-                                    "title": mat.title,
-                                    "file_url": mat.file_url,
-                                    "page_number": chunk.page_number,
-                                    "content": chunk.content,
-                                    "semester": mat.semester,
-                                    "subject_id": str(mat.subject_id)
-                                })
-                                seen_chunk_ids.add(chunk.id)
-                    else:
-                        content_snippet = f"Course Material Title: {mat.title}\nDescription: {mat.description or 'Academic course document'}\nMaterial Type: {mat.material_type} (Semester {mat.semester})"
-                        matched_chunks.append({
-                            "chunk_id": str(mat.id),
-                            "material_id": str(mat.id),
-                            "title": mat.title,
-                            "file_url": mat.file_url,
-                            "page_number": 1,
-                            "content": content_snippet,
-                            "semester": mat.semester,
-                            "subject_id": str(mat.subject_id)
-                        })
-                        seen_chunk_ids.add(mat.id)
-        except Exception as e:
-            logger.warning(f"Direct DB material search error: {e}")
-
-        # 3. Keyword matching fallback using ILIKE if < top_k results
+        # 2. Keyword matching fallback using ILIKE if < top_k results
         if len(matched_chunks) < top_k:
             query_terms = [t.strip() for t in re.split(r"\s+", query) if len(t.strip()) > 2]
             if query_terms:
@@ -406,6 +421,12 @@ class RAGService:
                         })
                         seen_chunk_ids.add(chunk.id)
 
+        # Strict Document Isolation: Never mix chunks from different documents!
+        # Pick the single most relevant document and isolate all context to that document only
+        if matched_chunks:
+            primary_material_id = matched_chunks[0]["material_id"]
+            matched_chunks = [c for c in matched_chunks if c["material_id"] == primary_material_id][:top_k]
+
         return matched_chunks
 
     def answer_question(
@@ -425,8 +446,27 @@ class RAGService:
             )
             return self._save_and_return(db, user_id, question, greeting_answer, [], session_id)
 
-        # 2. Retrieve matching chunks across ALL active materials
-        matched_chunks = self.search_similar_chunks(db, question, top_k=5)
+        # 2. Check if student uploaded a document in this chat session (from student end)
+        session_file = self._session_uploaded_docs.get(str(session_id)) if session_id else None
+        if session_file:
+            logger.info(f"Using student-uploaded PDF '{session_file['filename']}' for real-time answer in session {session_id}")
+            top_file_chunks = self._in_memory_rag_search(question, session_file["chunks"], top_k=5)
+            matched_chunks = [
+                {
+                    "chunk_id": str(uuid.uuid4()),
+                    "material_id": str(session_id),
+                    "title": session_file["filename"],
+                    "file_url": "",
+                    "page_number": c["page_number"],
+                    "content": c["content"],
+                    "semester": 5,
+                    "subject_id": ""
+                }
+                for c in top_file_chunks
+            ]
+        else:
+            # Retrieve matching chunks across active materials with targeted document isolation
+            matched_chunks = self.search_similar_chunks(db, question, top_k=5)
 
         context_snippets = []
         sources = []
@@ -434,7 +474,7 @@ class RAGService:
 
         for c in matched_chunks:
             context_snippets.append(
-                f"--- Course Material: {c['title']} (Page {c['page_number']}) ---\n{c['content']}"
+                f"--- Document: {c['title']} (Page {c['page_number']}) ---\n{c['content']}"
             )
             source_key = (c["material_id"], c["page_number"])
             if source_key not in seen_sources:
@@ -448,35 +488,62 @@ class RAGService:
 
         if matched_chunks:
             context_text = "\n\n".join(context_snippets)
+            primary_title = matched_chunks[0]["title"]
         else:
-            context_text = "No matching faculty material chunks found in database."
+            context_text = "No matching document chunks found in database."
+            primary_title = "Academic Document"
 
-        # 3. Exact System Prompt per specification
+        # 3. Conversational Session History (Isolate to this session only, never mix chats!)
+        chat_history_messages = []
+        if session_id:
+            try:
+                past_msgs = (
+                    db.query(ChatMessage)
+                    .filter(ChatMessage.session_id == session_id)
+                    .order_by(ChatMessage.created_at.asc())
+                    .limit(6)
+                    .all()
+                )
+                for pm in past_msgs:
+                    chat_history_messages.append({
+                        "role": "user" if pm.role == "user" else "assistant",
+                        "content": pm.content
+                    })
+            except Exception as e:
+                logger.warning(f"Could not load session history: {e}")
+
+        # 4. Strict System Prompt (Prevents mixing answers with other chats or documents)
         system_prompt = (
-            "You are AcademicAI Tutor, an expert, conversational academic tutor. Explain concepts clearly, thoroughly, and concisely with examples (like ChatGPT). "
-            "If context from faculty materials is provided, synthesize the answer with it and reference the material title. "
-            "If no chunks match, provide the full academic explanation of the requested concept directly and inform the student that you are providing the standard academic explanation."
+            f"You are AcademicAI Tutor, an expert, real-time academic assistant. "
+            f"You are answering a question specifically based on the student's uploaded document / course material: '{primary_title}'.\n"
+            f"RULES:\n"
+            f"1. Ground your answer strictly in the provided Document Context for '{primary_title}'.\n"
+            f"2. Cite the exact page numbers referenced in your explanation (e.g. [Page 2]).\n"
+            f"3. Do NOT mix in details from other unrelated materials or other student chats.\n"
+            f"4. Provide a clear, thorough, structured explanation with key points and definitions."
         )
 
         user_prompt = (
-            f"Course Material Context:\n{context_text}\n\n"
+            f"Document Context:\n{context_text}\n\n"
             f"Student Question: {question}\n\n"
-            f"Please provide a complete, clear, and structured academic explanation:"
+            f"Please provide an accurate, real-time academic explanation based directly on this document:"
         )
 
         answer_text = ""
 
-        # Attempt OpenAI or Grok Call
+        # Attempt OpenAI or Grok Call with isolated session history
         if self.openai_client:
             try:
+                llm_messages = [
+                    {"role": "system", "content": system_prompt},
+                    *chat_history_messages[-4:],
+                    {"role": "user", "content": user_prompt}
+                ]
                 response = self.openai_client.chat.completions.create(
                     model=self.model_name,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt}
-                    ],
-                    temperature=0.7,
-                    max_tokens=1000
+                    messages=llm_messages,
+                    temperature=0.6,
+                    max_tokens=1200
                 )
                 if response.choices and response.choices[0].message.content:
                     answer_text = response.choices[0].message.content.strip()
@@ -484,7 +551,7 @@ class RAGService:
                 provider = "Grok" if self.is_grok else "OpenAI"
                 logger.warning(f"{provider} ChatCompletion call failed: {e}")
 
-        # Attempt Google GenAI Call if OpenAI not used or failed
+        # Attempt Google GenAI Call if OpenAI/Grok not used or failed
         if not answer_text and self.genai_client:
             try:
                 full_prompt = f"{system_prompt}\n\n{user_prompt}"
@@ -497,7 +564,7 @@ class RAGService:
             except Exception as e:
                 logger.warning(f"Google GenAI LLM call failed: {e}")
 
-        # Fallback ChatGPT-style Tutor Explanation generator if LLM APIs are unreachable
+        # Fallback Dynamic Real-Time Document Synthesizer (never hardcoded, reads real document content)
         if not answer_text:
             answer_text = self._generate_fallback_chatgpt_response(question, matched_chunks)
 
@@ -650,7 +717,16 @@ class RAGService:
             except Exception as e:
                 logger.warning(f"Google GenAI LLM call for uploaded file failed: {e}")
 
-        # --- Step 6: Rich Fallback (structured, always useful even without LLM) ---
+        # --- Step 6: Cache student-uploaded document for this session (for real-time follow-ups) ---
+        if session_id:
+            self._session_uploaded_docs[str(session_id)] = {
+                "filename": filename,
+                "chunks": all_chunks,
+                "doc_metadata": doc_metadata
+            }
+            logger.info(f"Cached student-uploaded document '{filename}' for session {session_id} ({len(all_chunks)} chunks)")
+
+        # --- Step 7: Rich Fallback (structured, always useful even without LLM) ---
         if not answer_text:
             answer_text = self._generate_file_fallback_response(
                 filename, actual_question, top_chunks, doc_metadata
@@ -710,61 +786,56 @@ class RAGService:
         )
 
     def _generate_fallback_chatgpt_response(self, question: str, chunks: List[Dict[str, Any]]) -> str:
-        """Generate a structured, thorough, friendly ChatGPT-style tutor explanation using matched material context."""
-        has_chunks = bool(chunks)
-        matched_title = chunks[0]["title"] if has_chunks else None
-        snippet_text = "\n\n".join([c["content"] for c in chunks[:3]]) if has_chunks else ""
-
-        intro_note = ""
-        if matched_title:
-            intro_note = f"Synthesizing explanation using uploaded course material **'{matched_title}'**:\n\n"
-        else:
-            intro_note = "*(Note: No specific faculty PDF chunk matched in uploads. Providing standard academic explanation for this topic.)*\n\n"
-
-        q_lower = question.lower()
-        concept_detail = ""
-        if "stack" in q_lower:
-            concept_detail = (
-                "### 💡 Stack Data Structure Overview\n"
-                "A **Stack** is a linear data structure that operates under the **Last-In, First-Out (LIFO)** principle.\n\n"
-                "#### Core Operations:\n"
-                "- **`push(item)`**: Inserts an element onto the top of the stack. *Time Complexity: O(1)*\n"
-                "- **`pop()`**: Removes and returns the top element of the stack. *Time Complexity: O(1)*\n"
-                "- **`peek()` / `top()`**: Accesses the top element without modifying the stack. *Time Complexity: O(1)*\n"
-                "- **`isEmpty()`**: Checks whether the stack contains any elements.\n\n"
-                "#### Real-World Applications:\n"
-                "1. **Function Call Stack:** Managing subroutine calls and local variables in programming languages.\n"
-                "2. **Undo/Redo Operations:** Tracking editing history in software applications.\n"
-                "3. **Expression Evaluation:** Parsing Infix to Postfix/Prefix expressions.\n"
-            )
-        elif "queue" in q_lower:
-            concept_detail = (
-                "### 💡 Queue Data Structure Overview\n"
-                "A **Queue** is a linear data structure operating under the **First-In, First-Out (FIFO)** principle.\n\n"
-                "#### Core Operations:\n"
-                "- **`enqueue(item)`**: Inserts an element at the rear of the queue.\n"
-                "- **`dequeue()`**: Removes and returns the front element.\n"
-                "- **`front()`**: Accesses the front element without removing it.\n"
-            )
-        else:
-            concept_detail = (
-                f"### 💡 Core Academic Concepts\n"
-                f"**{question.title()}** is a foundational topic in computer science and engineering.\n"
-                f"Key areas of study include theoretical definitions, structural design, operation complexity analysis, and practical implementations.\n"
+        """
+        Generate a deeply structured, comprehensive academic explanation directly derived from
+        the target uploaded PDF/document chunks. Zero hardcoded canned responses.
+        """
+        if not chunks:
+            q_clean = question.strip()
+            return (
+                f"## 🎓 Academic Tutor Explanation: {q_clean.title()}\n\n"
+                f"### 💡 Overview & Academic Concepts\n"
+                f"**{q_clean.title()}** is an important concept in the curriculum. "
+                f"It encompasses foundational theoretical definitions, algorithmic mechanics, and operational principles.\n\n"
+                f"### 🔍 Key Areas of Study\n"
+                f"1. **Core Principles:** Core definitions, axioms, and structural constraints.\n"
+                f"2. **Operational Rules:** How operations modify state and data representations.\n"
+                f"3. **Complexity & Efficiency:** Worst-case and average-case performance analysis.\n\n"
+                f"### 📌 Real-Time Tip\n"
+                f"To get precise page citations and exact slide quotes, mention the uploaded material name (e.g. *Unit-2 Stack and Queue*) or attach your PDF directly using the paperclip icon!"
             )
 
-        context_section = ""
-        if snippet_text:
-            context_section = f"### 📄 Excerpt from Course Notes ({matched_title})\n```{snippet_text}\n```\n\n"
+        matched_title = chunks[0].get("title", "Uploaded Document")
+        pages_referenced = sorted(list(set(c.get("page_number", 1) for c in chunks)))
+        pages_str = ", ".join(f"Page {p}" for p in pages_referenced)
+
+        # Extract real content lines from the document chunks (filter out noise)
+        extracted_points = []
+        for c in chunks:
+            p = c.get("page_number", 1)
+            raw_lines = [l.strip() for l in c.get("content", "").split("\n") if len(l.strip()) > 8]
+            for l in raw_lines:
+                if not l.startswith("---") and l not in extracted_points:
+                    extracted_points.append(f"• **[Page {p}]** {l}")
+
+        key_points_preview = "\n".join(extracted_points[:8]) if extracted_points else "• Verified content from uploaded document."
+
+        # Real verbatim excerpts from chunks
+        excerpts = "\n\n".join([f"--- [Page {c.get('page_number', 1)}] ---\n{c.get('content', '')}" for c in chunks[:3]])
 
         return (
-            f"## 🎓 {question.title()} — AcademicAI Tutor Explanation\n\n"
-            f"{intro_note}"
-            f"{concept_detail}\n"
-            f"{context_section}"
-            f"### 📌 Key Takeaways & Exam Tip\n"
-            f"- Practice implementing the data structure using arrays and pointers/linked lists.\n"
-            f"- Review operation complexities and memory allocation trade-offs for mid-term and final exams."
+            f"## 🎓 Real-Time Document Analysis: **{matched_title}**\n\n"
+            f"**Referenced Material:** `{matched_title}` ({pages_str})\n\n"
+            f"### 📖 Real-Time Findings Directly from Uploaded PDF:\n"
+            f"{key_points_preview}\n\n"
+            f"### 💡 Academic Concept Breakdown:\n"
+            f"According to the uploaded material **'{matched_title}'**, the document provides direct course instructions on this topic. "
+            f"Review the primary definitions, properties, and algorithms highlighted across {pages_str}.\n\n"
+            f"### 📄 Exact Document Excerpts:\n"
+            f"```text\n{excerpts}\n```\n\n"
+            f"### 🎯 Exam & Study Guidance:\n"
+            f"- Verify the exact syntax and diagrams provided in **'{matched_title}'** ({pages_str}).\n"
+            f"- Pay specific attention to operations, edge cases, and algorithmic complexity stated in these lecture notes."
         )
 
     def _save_and_return(
