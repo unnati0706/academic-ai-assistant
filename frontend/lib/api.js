@@ -4,12 +4,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/a
  * Generic API fetch wrapper with Authorization header injection.
  */
 export async function apiFetch(endpoint, options = {}) {
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("token") ||
-        localStorage.getItem("access_token") ||
-        localStorage.getItem("academic_ai_token")
-      : null;
+  const token = typeof window !== "undefined" ? localStorage.getItem("academic_ai_token") : null;
 
   const headers = { ...options.headers };
 
@@ -18,7 +13,7 @@ export async function apiFetch(endpoint, options = {}) {
     headers["Content-Type"] = "application/json";
   }
 
-  if (token && !headers["Authorization"]) {
+  if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
@@ -31,36 +26,14 @@ export async function apiFetch(endpoint, options = {}) {
     const res = await fetch(`${API_BASE_URL}${endpoint}`, config);
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
-      let detailMsg = errorData.detail || errorData.message || errorData.error;
-      if (Array.isArray(detailMsg)) {
-        detailMsg = detailMsg
-          .map((d) =>
-            typeof d === "object" && d.msg
-              ? `${d.loc ? d.loc.slice(1).join(".") + ": " : ""}${d.msg}`
-              : typeof d === "object"
-              ? JSON.stringify(d)
-              : String(d)
-          )
-          .join(", ");
-      } else if (typeof detailMsg === "object" && detailMsg !== null) {
-        detailMsg = JSON.stringify(detailMsg);
-      }
-      throw new Error(detailMsg || `Request failed with status ${res.status}`);
+      throw new Error(errorData.detail || `Request failed with status ${res.status}`);
     }
     if (res.status === 204) return null;
     return await res.json();
   } catch (err) {
-    const rawMsg =
-      err?.response?.data?.detail ||
-      err?.detail ||
-      err?.message ||
-      (typeof err === "object" ? JSON.stringify(err) : String(err));
-    const errorMsg =
-      rawMsg === "Failed to fetch" || err.name === "TypeError"
-        ? `Unable to connect to backend server at ${API_BASE_URL}. Please ensure backend is running.`
-        : typeof rawMsg === "object"
-        ? JSON.stringify(rawMsg)
-        : String(rawMsg);
+    const errorMsg = (err.message === "Failed to fetch" || err.name === "TypeError")
+      ? `Unable to connect to backend server at ${API_BASE_URL}. Please ensure backend is running.`
+      : err.message;
     console.warn(`API call failed for ${endpoint}:`, errorMsg);
     throw new Error(errorMsg);
   }
@@ -69,12 +42,6 @@ export async function apiFetch(endpoint, options = {}) {
 // API Endpoints
 export const api = {
   // Auth
-  login: (email, password, role = "student") =>
-    apiFetch("/auth/login", { method: "POST", body: JSON.stringify({ email, password, role }) }),
-
-  signup: (email, password, role = "student", name = "", department = null, semester = null) =>
-    apiFetch("/auth/signup", { method: "POST", body: JSON.stringify({ email, password, role, name, department, semester }) }),
-
   verifyOtp: (email, token, role = "student") =>
     apiFetch("/auth/verify-otp", { method: "POST", body: JSON.stringify({ email, token, role }) }),
   getMe: () => apiFetch("/auth/me"),

@@ -8,23 +8,9 @@ class VerifyOTPRequest(BaseModel):
     token: str
     role: str | None = None
 
-class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
-    role: str = "student"
-
-class SignupRequest(BaseModel):
-    email: EmailStr
-    password: str
-    role: str = "student"
-    name: str
-    department: str | None = None
-    semester: int | None = None
-
 class UserResponse(BaseModel):
     id: UUID
     email: str
-    name: str | None = None
     phone: str | None = None
     role: UserRole
     created_at: datetime

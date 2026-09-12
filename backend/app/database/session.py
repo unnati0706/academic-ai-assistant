@@ -36,17 +36,8 @@ def init_db() -> None:
 
     with engine.begin() as conn:
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
-
+    
     Base.metadata.create_all(bind=engine)
-
-    # Safe migration: add `name` column to users table if it doesn't exist yet
-    try:
-        with engine.begin() as conn:
-            conn.execute(text(
-                "ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR(255);"
-            ))
-    except Exception as e:
-        print(f"Migration note (name column): {e}")
 
     try:
         with SessionLocal() as db:

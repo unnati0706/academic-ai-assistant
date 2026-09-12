@@ -119,60 +119,36 @@ async def upload_material_endpoint(
     background_tasks: BackgroundTasks,
     title: str = Form(...),
     description: Optional[str] = Form(None),
-    subject_id: Optional[str] = Form(None),
-    semester: int = Form(5),
+    subject_id: uuid.UUID = Form(...),
+    semester: int = Form(...),
     unit: Optional[int] = Form(None),
-    material_type: str = Form("notes"),
-    faculty_id: Optional[str] = Form(None),
+    material_type: str = Form(...),
+    faculty_id: Optional[uuid.UUID] = Form(None),
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
     """Upload material document, store file, create DB record, and trigger async OCR + RAG ingestion in background."""
-    # Safely resolve subject_id UUID
-    parsed_subject_id = None
-    if subject_id:
-        try:
-            parsed_subject_id = uuid.UUID(str(subject_id))
-        except (ValueError, TypeError):
-            parsed_subject_id = None
-    if not parsed_subject_id:
-        parsed_subject_id = uuid.UUID("00000000-0000-0000-0000-000000000101")
-
-    subject = db.query(Subject).filter(Subject.id == parsed_subject_id).first()
+    subject = db.query(Subject).filter(Subject.id == subject_id).first()
     if not subject:
-        # Create auto-subject if missing for seamless functionality
-        subject = Subject(
-            id=parsed_subject_id,
-            name="Computer Science Core",
-            code="CS-501",
-            semester=semester,
-            branch="Computer Science"
-        )
+        # Create auto-subject if missing for seamless testing
+        subject = Subject(id=subject_id, name="Computer Science Core", code="CS-501", semester=semester, branch="Computer Science")
         db.add(subject)
         db.commit()
         db.refresh(subject)
 
-    parsed_faculty_id = None
     if faculty_id:
-        try:
-            parsed_faculty_id = uuid.UUID(str(faculty_id))
-        except (ValueError, TypeError):
-            parsed_faculty_id = None
-
-    if parsed_faculty_id:
-        uploader = db.query(User).filter(User.id == parsed_faculty_id).first()
+        uploader = db.query(User).filter(User.id == faculty_id).first()
         if not uploader:
-            uploader = User(id=parsed_faculty_id, email="dr.smith@academic.edu", role=UserRole.FACULTY_ADMIN)
+            uploader = User(id=faculty_id, email="dr.smith@academic.edu", role=UserRole.FACULTY_ADMIN)
             db.add(uploader)
             db.commit()
             db.refresh(uploader)
-
     await file.seek(0)
     file_bytes = await file.read()
     if not file_bytes:
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
 
-    # 1. Upload file to Storage
+    # 1. Upload file to Supabase Storage
     file_url = storage_service.upload_file(
         file_bytes=file_bytes,
         original_filename=file.filename or "uploaded_material.pdf",
@@ -183,12 +159,12 @@ async def upload_material_endpoint(
     material = Material(
         title=title,
         description=description,
-        subject_id=parsed_subject_id,
+        subject_id=subject_id,
         semester=semester,
         unit=unit,
         material_type=material_type,
         file_url=file_url,
-        uploaded_by=parsed_faculty_id,
+        uploaded_by=faculty_id,
         version=1,
         status="ACTIVE"
     )
