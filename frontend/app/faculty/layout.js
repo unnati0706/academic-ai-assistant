@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { GraduationCap, LogOut, User } from 'lucide-react';
@@ -7,7 +8,40 @@ import { getStoredUser, clearSession } from '@/lib/auth';
 
 export default function FacultyLayout({ children }) {
   const router = useRouter();
-  const user = getStoredUser();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const syncUser = () => {
+      const stored = getStoredUser();
+      let profile = null;
+      try {
+        const storedProfile = localStorage.getItem('faculty_profile');
+        if (storedProfile) {
+          profile = JSON.parse(storedProfile);
+        } else {
+          const storedProfiles = localStorage.getItem('faculty_profiles');
+          if (storedProfiles) {
+            const list = JSON.parse(storedProfiles);
+            profile = list[0];
+          }
+        }
+      } catch (_) {}
+
+      setUser({
+        ...stored,
+        email: profile?.email || stored?.email || 'dr.smith@academic.edu',
+        name: profile?.name || stored?.name || 'Dr. Robert Smith'
+      });
+    };
+
+    syncUser();
+    window.addEventListener('storage', syncUser);
+    window.addEventListener('user-updated', syncUser);
+    return () => {
+      window.removeEventListener('storage', syncUser);
+      window.removeEventListener('user-updated', syncUser);
+    };
+  }, []);
 
   const handleLogout = () => {
     clearSession();
@@ -32,7 +66,7 @@ export default function FacultyLayout({ children }) {
           <div className="flex items-center space-x-4">
             <div className="hidden sm:flex items-center space-x-2 text-xs text-[#8fb1a5] bg-[#1e2c29] px-3 py-1.5 rounded-lg border border-[#2e433e]">
               <User className="w-3.5 h-3.5 text-[#5ea891]" />
-              <span className="font-medium">{user?.email || 'Dr. Faculty Member'}</span>
+              <span className="font-medium font-mono text-[11px] text-[#c8ded7]">{user?.email || 'dr.smith@academic.edu'}</span>
             </div>
             <button
               onClick={handleLogout}

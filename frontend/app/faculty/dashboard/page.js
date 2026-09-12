@@ -10,6 +10,7 @@ import { getDocumentUrl } from '@/lib/supabase';
 // ─── Edit Profile Modal ────────────────────────────────────────────────────────
 function EditProfileModal({ user, currentProfile, onSave, onClose }) {
   const [name, setName] = useState(currentProfile?.name || user?.name || '');
+  const [email, setEmail] = useState(currentProfile?.email || user?.email || 'dr.smith@academic.edu');
   const [department, setDepartment] = useState(currentProfile?.department || '');
   const [designation, setDesignation] = useState(currentProfile?.designation || '');
   const [bio, setBio] = useState(currentProfile?.bio || '');
@@ -18,26 +19,44 @@ function EditProfileModal({ user, currentProfile, onSave, onClose }) {
   const handleSave = (e) => {
     e.preventDefault();
     setSaving(true);
+    const updatedEmail = email.trim() || user?.email || 'dr.smith@academic.edu';
+    const updatedName = name.trim() || user?.name || 'Dr. Robert Smith';
     const profile = {
-      id: user?.id || user?.email,
-      email: user?.email,
-      name: name.trim() || user?.name,
-      department: department.trim(),
-      designation: designation.trim(),
+      id: user?.id || '00000000-0000-0000-0000-000000000002',
+      email: updatedEmail,
+      name: updatedName,
+      department: department.trim() || 'Department of Computer Science',
+      designation: designation.trim() || 'Associate Professor',
       bio: bio.trim(),
     };
 
-    // Persist to localStorage under faculty_profiles array
+    // Persist to localStorage under faculty_profile and faculty_profiles array
     try {
+      localStorage.setItem('faculty_profile', JSON.stringify(profile));
       const stored = localStorage.getItem('faculty_profiles');
       const profiles = stored ? JSON.parse(stored) : [];
-      const existingIdx = profiles.findIndex(p => p.email === profile.email || p.id === profile.id);
+      const existingIdx = profiles.findIndex(p => p.id === profile.id || p.email === user?.email || p.email === profile.email);
       if (existingIdx >= 0) {
         profiles[existingIdx] = profile;
       } else {
-        profiles.push(profile);
+        profiles.unshift(profile);
       }
       localStorage.setItem('faculty_profiles', JSON.stringify(profiles));
+
+      // Update stored auth user so top-right user pill in Header/layout updates immediately
+      const currentUser = getStoredUser() || {};
+      const updatedUser = {
+        ...currentUser,
+        id: profile.id,
+        email: profile.email,
+        name: profile.name,
+        department: profile.department,
+      };
+      setSession(getStoredToken() || 'demo_faculty_token_12345', updatedUser);
+
+      // Dispatch events so Header and layouts update in real time
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('user-updated', { detail: profile }));
     } catch (_) {}
 
     setTimeout(() => {
@@ -71,6 +90,17 @@ function EditProfileModal({ user, currentProfile, onSave, onClose }) {
               onChange={e => setName(e.target.value)}
               placeholder="e.g. Dr. Anita Sharma"
               className="w-full px-3.5 py-2.5 bg-[#151f1d] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] placeholder-[#8fb1a5]/50 focus:outline-none focus:border-[#4f7c6e] transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#c8ded7] mb-1.5">Institutional Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="e.g. dr.smith@academic.edu"
+              className="w-full px-3.5 py-2.5 bg-[#151f1d] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] placeholder-[#8fb1a5]/50 focus:outline-none focus:border-[#4f7c6e] transition-all font-mono"
             />
           </div>
 
@@ -293,15 +323,26 @@ export default function FacultyDashboard() {
   };
 
   useEffect(() => {
-    // Load saved faculty profile from localStorage
-    try {
-      const stored = localStorage.getItem('faculty_profiles');
-      if (stored) {
-        const profiles = JSON.parse(stored);
-        const mine = profiles.find(p => p.email === user?.email || p.id === user?.id);
-        if (mine) setProfileData(mine);
-      }
-    } catch (_) {}
+    // Load saved faculty profile from localStorage and listen to real-time events
+    const loadProfile = () => {
+      try {
+        const single = localStorage.getItem('faculty_profile');
+        if (single) {
+          setProfileData(JSON.parse(single));
+          return;
+        }
+        const stored = localStorage.getItem('faculty_profiles');
+        if (stored) {
+          const profiles = JSON.parse(stored);
+          const mine = profiles.find(p => p.email === user?.email || p.id === user?.id) || profiles[0];
+          if (mine) setProfileData(mine);
+        }
+      } catch (_) {}
+    };
+
+    loadProfile();
+    window.addEventListener('storage', loadProfile);
+    window.addEventListener('user-updated', loadProfile);
 
     // Guard check
     const token = getStoredToken();
@@ -311,6 +352,11 @@ export default function FacultyDashboard() {
       return;
     }
     fetchFacultyHistory();
+
+    return () => {
+      window.removeEventListener('storage', loadProfile);
+      window.removeEventListener('user-updated', loadProfile);
+    };
   }, [router]);
 
   async function fetchFacultyHistory() {
@@ -436,7 +482,8 @@ export default function FacultyDashboard() {
     return Number(a) - Number(b);
   });
 
-  const displayName = profileData?.name || user?.name || "Dr. Faculty Administrator";
+  const displayName = profileData?.name || user?.name || "Dr. Robert Smith";
+  const displayEmail = profileData?.email || user?.email || "dr.smith@academic.edu";
   const displayDept = profileData?.department || "Department of Computer Science";
 
   return (
@@ -449,8 +496,10 @@ export default function FacultyDashboard() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-[#f4f1ea] tracking-tight">{displayName}</h1>
-            <p className="text-xs text-[#8fb1a5] mt-0.5">
-              {user?.email || "dr.smith@academic.edu"} • {displayDept}
+            <p className="text-xs text-[#8fb1a5] mt-0.5 flex flex-wrap items-center gap-1.5">
+              <span className="font-mono text-[11px] text-[#c8ded7]">{displayEmail}</span>
+              <span>•</span>
+              <span>{displayDept}</span>
             </p>
             {profileData?.designation && (
               <p className="text-[11px] text-[#5ea891] font-medium mt-0.5">{profileData.designation}</p>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { BookOpen, FileText, ArrowRight, Download, Eye, Users, GraduationCap, Briefcase } from 'lucide-react';
+import { BookOpen, FileText, ArrowRight, Download, Eye, Users, GraduationCap, Briefcase, Mail } from 'lucide-react';
 import { api } from '@/lib/api';
 import { getDocumentUrl } from '@/lib/supabase';
 import PdfViewerModal from '@/components/PdfViewerModal';
@@ -39,19 +39,44 @@ export default function StudentDashboard() {
   };
 
   useEffect(() => {
-    // Load faculty profiles from localStorage (persisted by faculty Edit Profile)
-    try {
-      const stored = localStorage.getItem('faculty_profiles');
-      if (stored) {
-        setFacultyProfiles(JSON.parse(stored));
-      }
-    } catch (_) {}
+    // Load faculty profiles from localStorage and provide default fallback if none
+    const loadFacultyProfiles = () => {
+      try {
+        let list = [];
+        const storedProfiles = localStorage.getItem('faculty_profiles');
+        const singleProfile = localStorage.getItem('faculty_profile');
+
+        if (storedProfiles) {
+          try { list = JSON.parse(storedProfiles); } catch (_) {}
+        }
+        if ((!list || list.length === 0) && singleProfile) {
+          try { list = [JSON.parse(singleProfile)]; } catch (_) {}
+        }
+        if (!list || list.length === 0) {
+          list = [
+            {
+              id: "00000000-0000-0000-0000-000000000002",
+              name: "Dr. Robert Smith",
+              email: "dr.smith@academic.edu",
+              department: "Department of Computer Science",
+              designation: "Associate Professor & Department Head",
+              bio: "Specializing in Distributed Systems, Artificial Intelligence, and Data Structures."
+            }
+          ];
+        }
+        setFacultyProfiles(list);
+      } catch (_) {}
+    };
+
+    loadFacultyProfiles();
+    window.addEventListener('storage', loadFacultyProfiles);
+    window.addEventListener('user-updated', loadFacultyProfiles);
 
     async function loadData() {
       try {
         const [matRes, papersRes] = await Promise.all([
           api.getMaterials().catch(() => []),
-          api.getQuestionPapers().catch(() => [])
+          (api.getQuestionPapers ? api.getQuestionPapers() : api.getPapers()).catch(() => [])
         ]);
         setMaterials(matRes || []);
         setPapers(papersRes || []);
@@ -62,67 +87,91 @@ export default function StudentDashboard() {
       }
     }
     loadData();
+
+    return () => {
+      window.removeEventListener('storage', loadFacultyProfiles);
+      window.removeEventListener('user-updated', loadFacultyProfiles);
+    };
   }, []);
 
   return (
     <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto">
 
-      {/* Faculty Profiles Showcase */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
+      {/* Faculty Profiles & Department Leads — Sleek Rectangular Container */}
+      <div className="bg-[#1e2c29]/70 border border-[#2e433e] rounded-2xl p-5 sm:p-6 shadow-md space-y-5">
+        <div className="flex items-center justify-between pb-3 border-b border-[#2e433e]/70">
           <div className="flex items-center space-x-2.5">
             <div className="w-8 h-8 rounded-lg bg-[#4f7c6e]/20 border border-[#4f7c6e]/30 flex items-center justify-center">
               <Users className="w-4 h-4 text-[#5ea891]" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-[#f4f1ea] tracking-tight">Faculty Profiles & Department Leads</h1>
-              <p className="text-[11px] text-[#8fb1a5] mt-0.5">Your course instructors and department faculty</p>
+              <h2 className="text-base font-bold text-[#f4f1ea] tracking-tight">Faculty Profiles & Department Leads</h2>
+              <p className="text-xs text-[#8fb1a5] mt-0.5">Your course instructors and department faculty</p>
             </div>
           </div>
-          <span className="text-xs text-[#8fb1a5] font-medium">{facultyProfiles.length} Faculty</span>
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#4f7c6e]/20 text-[#8fb1a5] border border-[#4f7c6e]/30">
+            {facultyProfiles.length} {facultyProfiles.length === 1 ? 'Faculty Lead' : 'Faculty Leads'}
+          </span>
         </div>
 
         {facultyProfiles.length === 0 ? (
-          <div className="glass-card rounded-2xl p-8 sm:p-10 text-center border border-[#2e433e]">
-            <div className="w-14 h-14 rounded-2xl bg-[#4f7c6e]/10 border border-[#4f7c6e]/20 flex items-center justify-center mx-auto mb-4">
-              <GraduationCap className="w-7 h-7 text-[#8fb1a5]" />
+          <div className="rounded-xl p-8 text-center border border-[#2e433e] bg-[#151f1d]/50">
+            <div className="w-12 h-12 rounded-xl bg-[#4f7c6e]/10 border border-[#4f7c6e]/20 flex items-center justify-center mx-auto mb-3">
+              <GraduationCap className="w-6 h-6 text-[#8fb1a5]" />
             </div>
-            <h3 className="text-sm font-bold text-[#f4f1ea]">No Faculty Profiles Yet</h3>
-            <p className="text-xs text-[#8fb1a5] mt-1.5 max-w-sm mx-auto leading-relaxed">
+            <h3 className="text-xs font-bold text-[#f4f1ea]">No Faculty Profiles Yet</h3>
+            <p className="text-[11px] text-[#8fb1a5] mt-1 max-w-sm mx-auto leading-relaxed">
               Faculty profiles will appear here once instructors complete their department profile setup.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {facultyProfiles.map((faculty, idx) => (
               <div
                 key={faculty.id || faculty.email || idx}
-                className="glass-card rounded-2xl p-5 border border-[#2e433e] hover:border-[#4f7c6e]/40 transition-all group"
+                className="bg-[#1e2c29] border border-[#2e433e] rounded-xl p-5 shadow-sm hover:border-[#4f7c6e]/50 transition-all flex flex-col justify-between"
               >
-                <div className="flex items-center space-x-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4f7c6e] to-[#3d6459] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-[#4f7c6e]/20 shrink-0">
+                <div className="flex items-start space-x-4">
+                  {/* Left Avatar Initial Circle */}
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#4f7c6e] to-[#3d6459] flex items-center justify-center text-white font-bold text-base shadow-md shadow-[#4f7c6e]/20 shrink-0 border border-[#8fb1a5]/20 mt-0.5">
                     {faculty.name ? faculty.name.charAt(0).toUpperCase() : 'F'}
                   </div>
-                  <div className="min-w-0">
-                    <h4 className="text-xs font-bold text-[#f4f1ea] truncate group-hover:text-[#c8ded7] transition-colors">
-                      {faculty.name || 'Faculty Member'}
-                    </h4>
-                    {faculty.designation && (
-                      <p className="text-[10px] text-[#5ea891] font-medium truncate">{faculty.designation}</p>
+
+                  {/* Details Column */}
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-sm font-bold text-[#f4f1ea] truncate">
+                        {faculty.name || 'Dr. Faculty Member'}
+                      </h3>
+                      {faculty.designation && (
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#4f7c6e]/20 text-[#5ea891] border border-[#4f7c6e]/30">
+                          {faculty.designation}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-[#8fb1a5]">
+                      {faculty.email && (
+                        <div className="flex items-center space-x-1.5 min-w-0">
+                          <Mail className="w-3.5 h-3.5 text-[#5ea891] shrink-0" />
+                          <span className="text-[#c8ded7] truncate font-mono text-[11px]">{faculty.email}</span>
+                        </div>
+                      )}
+                      {faculty.department && (
+                        <div className="flex items-center space-x-1.5 min-w-0">
+                          <Briefcase className="w-3.5 h-3.5 text-[#8fb1a5] shrink-0" />
+                          <span className="truncate text-[11px]">{faculty.department}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {faculty.bio && (
+                      <p className="text-xs text-[#8fb1a5]/80 leading-relaxed line-clamp-2 pt-1 border-t border-[#2e433e]/50">
+                        {faculty.bio}
+                      </p>
                     )}
                   </div>
                 </div>
-                {faculty.department && (
-                  <div className="flex items-center space-x-1.5 mb-2">
-                    <Briefcase className="w-3 h-3 text-[#8fb1a5] shrink-0" />
-                    <span className="text-[11px] text-[#8fb1a5] truncate">{faculty.department}</span>
-                  </div>
-                )}
-                {faculty.bio && (
-                  <p className="text-[11px] text-[#8fb1a5]/80 leading-relaxed line-clamp-2 mt-1">
-                    {faculty.bio}
-                  </p>
-                )}
               </div>
             ))}
           </div>
