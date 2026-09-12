@@ -111,7 +111,6 @@ export default function LoginPage() {
           <h1 className="text-2xl font-extrabold tracking-tight text-[#263339]">
             Academic<span className="gradient-text">AI</span>
           </h1>
-          <p className="text-xs text-[#465F64] mt-1 font-medium">Academic Portal & Course Repository</p>
         </div>
 
         {/* Auth Card */}
