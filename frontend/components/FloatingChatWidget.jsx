@@ -120,15 +120,15 @@ export default function FloatingChatWidget() {
       <div className="fixed bottom-6 right-6 z-50">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-14 h-14 rounded-full gradient-bg flex items-center justify-center text-[#2c2624] shadow-2xl shadow-[#b5c7d3]/30 hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-[#b5c7d3]/40 group"
+          className="w-14 h-14 rounded-full gradient-bg flex items-center justify-center text-white shadow-2xl shadow-[#749190]/35 hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-white group"
           title="Open Academic AI Assistant"
         >
           {isOpen ? (
-            <X className="w-6 h-6 text-[#2c2624]" />
+            <X className="w-6 h-6 text-white" />
           ) : (
             <div className="relative">
-              <Bot className="w-7 h-7 text-[#2c2624]" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#b5c7d3] rounded-full ring-2 ring-[#241f1e]"></span>
+              <Bot className="w-7 h-7 text-white" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#E6D9B9] rounded-full ring-2 ring-white"></span>
             </div>
           )}
         </button>
@@ -136,30 +136,30 @@ export default function FloatingChatWidget() {
 
       {/* Floating Popup Drawer Chat Modal */}
       {isOpen && (
-        <div className="fixed bottom-20 right-3 sm:right-6 w-[calc(100vw-1.5rem)] sm:w-96 max-w-[calc(100vw-1.5rem)] sm:max-w-md h-[520px] max-h-[calc(100vh-6.5rem)] z-50 bg-[#312a28] border border-[#463c39] rounded-2xl shadow-2xl flex flex-col overflow-hidden backdrop-blur-xl animate-in fade-in slide-in-from-bottom-5 duration-200 text-[#f5efeb]">
+        <div className="fixed bottom-20 right-3 sm:right-6 w-[calc(100vw-1.5rem)] sm:w-96 max-w-[calc(100vw-1.5rem)] sm:max-w-md h-[520px] max-h-[calc(100vh-6.5rem)] z-50 bg-white border border-[#D8D6C9] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200 text-[#263339]">
           {/* Header */}
-          <div className="gradient-bg p-4 flex items-center justify-between text-[#2c2624] shrink-0">
+          <div className="gradient-bg p-4 flex items-center justify-between text-white shrink-0">
             <div className="flex items-center space-x-2.5">
-              <div className="w-8 h-8 rounded-lg bg-black/10 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-[#2c2624]" />
+              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-white" />
               </div>
               <div>
-                <h3 className="text-sm font-bold leading-tight text-[#2c2624]">AcademicAI Tutor</h3>
-                <p className="text-[10px] text-[#2c2624]/80 font-medium">Faculty Material RAG Search</p>
+                <h3 className="text-sm font-bold leading-tight text-white">AcademicAI Tutor</h3>
+                <p className="text-[10px] text-white/80 font-medium">Faculty Material RAG Search</p>
               </div>
             </div>
 
             <div className="flex items-center space-x-1">
               <button
                 onClick={handleClearChat}
-                className="p-1.5 rounded-lg hover:bg-black/10 text-[#2c2624] transition-colors"
+                className="p-1.5 rounded-lg hover:bg-white/20 text-white transition-colors"
                 title="Clear Chat History"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-black/10 text-[#2c2624] transition-colors"
+                className="p-1.5 rounded-lg hover:bg-white/20 text-white transition-colors"
                 title="Close"
               >
                 <X className="w-4 h-4" />
@@ -168,7 +168,7 @@ export default function FloatingChatWidget() {
           </div>
 
           {/* Messages Body */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs bg-[#241f1e]">
+          <div className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs bg-[#fbf9f5]">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
@@ -179,22 +179,22 @@ export default function FloatingChatWidget() {
                 <div
                   className={`max-w-[85%] p-3.5 rounded-2xl leading-relaxed ${
                     msg.role === 'user'
-                      ? 'bg-gradient-to-br from-[#b5c7d3] to-[#a3b8c8] text-[#2c2624] font-medium rounded-br-none shadow-md shadow-[#b5c7d3]/20'
-                      : 'bg-[#312a28] text-[#f5efeb] border border-[#463c39] rounded-bl-none'
+                      ? 'bg-[#749190] text-white font-medium rounded-br-none shadow-sm shadow-[#749190]/20'
+                      : 'bg-white text-[#263339] border border-[#D8D6C9] rounded-bl-none shadow-xs'
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{msg.content}</p>
 
                   {/* Cited Sources */}
                   {msg.sources && msg.sources.length > 0 && (
-                    <div className="mt-3 pt-2.5 border-t border-[#463c39] space-y-1">
-                      <div className="text-[10px] font-bold text-[#b5c7d3] uppercase tracking-wider flex items-center space-x-1">
-                        <BookOpen className="w-3 h-3 text-[#b5c7d3]" />
+                    <div className="mt-3 pt-2.5 border-t border-[#D8D6C9] space-y-1">
+                      <div className="text-[10px] font-bold text-[#749190] uppercase tracking-wider flex items-center space-x-1">
+                        <BookOpen className="w-3 h-3 text-[#749190]" />
                         <span>Sources Cited:</span>
                       </div>
                       {msg.sources.map((src, sIdx) => (
-                        <div key={sIdx} className="text-[10px] text-[#c8bfb8] flex items-center justify-between">
-                          <span className="truncate max-w-[180px]">{src.title} (Page {src.page_number})</span>
+                        <div key={sIdx} className="text-[10px] text-[#465F64] flex items-center justify-between">
+                          <span className="truncate max-w-[180px] font-medium">{src.title} (Page {src.page_number})</span>
                           {(src.file_url || src.file_path || src.material_id) && (
                             <button
                               type="button"
@@ -202,7 +202,7 @@ export default function FloatingChatWidget() {
                                 url: getDocumentUrl(src.file_url || src.file_path, 'academic-documents', src.material_id),
                                 title: `${src.title} (Page ${src.page_number})`
                               })}
-                              className="text-[#b5c7d3] hover:text-[#f5efeb] ml-1 inline-flex items-center"
+                              className="text-[#749190] hover:text-[#5f7b7a] ml-1 inline-flex items-center font-bold"
                               title="Preview PDF"
                             >
                               <ExternalLink className="w-2.5 h-2.5" />
@@ -217,8 +217,8 @@ export default function FloatingChatWidget() {
             ))}
 
             {loading && (
-              <div className="flex items-center space-x-2 text-[#c8bfb8] text-xs py-2">
-                <div className="w-4 h-4 border-2 border-[#b5c7d3] border-t-transparent rounded-full animate-spin"></div>
+              <div className="flex items-center space-x-2 text-[#465F64] text-xs py-2 font-medium">
+                <div className="w-4 h-4 border-2 border-[#749190] border-t-transparent rounded-full animate-spin"></div>
                 <span>Searching faculty materials...</span>
               </div>
             )}
@@ -227,12 +227,12 @@ export default function FloatingChatWidget() {
           </div>
 
           {/* Chat Input Form */}
-          <form onSubmit={handleSendMessage} className="p-3 bg-[#312a28] border-t border-[#463c39] shrink-0">
+          <form onSubmit={handleSendMessage} className="p-3 bg-white border-t border-[#D8D6C9] shrink-0">
             {selectedFile && (
-              <div className="mb-2 px-2.5 py-1 bg-[#282220] border border-[#463c39] rounded-lg flex items-center justify-between text-[11px] text-[#b5c7d3]">
+              <div className="mb-2 px-2.5 py-1 bg-[#E6D9B9]/50 border border-[#D8D6C9] rounded-lg flex items-center justify-between text-[11px] text-[#263339]">
                 <div className="flex items-center space-x-1.5 truncate">
-                  <FileText className="w-3.5 h-3.5 text-[#b5c7d3] shrink-0" />
-                  <span className="truncate">{selectedFile.name}</span>
+                  <FileText className="w-3.5 h-3.5 text-[#749190] shrink-0" />
+                  <span className="truncate font-medium">{selectedFile.name}</span>
                 </div>
                 <button
                   type="button"
@@ -240,7 +240,7 @@ export default function FloatingChatWidget() {
                     setSelectedFile(null);
                     if (fileInputRef.current) fileInputRef.current.value = '';
                   }}
-                  className="text-[#c8bfb8] hover:text-[#f5efeb] ml-2"
+                  className="text-[#465F64] hover:text-[#263339] ml-2"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -259,7 +259,7 @@ export default function FloatingChatWidget() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={loading}
-                className="absolute left-2.5 text-[#a19588] hover:text-[#b5c7d3] transition-colors disabled:opacity-40"
+                className="absolute left-2.5 text-[#465F64] hover:text-[#749190] transition-colors disabled:opacity-40"
                 title="Attach Document / Notes (PDF, Image, Text)"
               >
                 <Paperclip className="w-4 h-4" />
@@ -270,12 +270,12 @@ export default function FloatingChatWidget() {
                 onChange={(e) => setInputQuestion(e.target.value)}
                 placeholder={selectedFile ? "Ask about attached file..." : "Ask or upload course material..."}
                 disabled={loading}
-                className="w-full pl-9 pr-10 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all disabled:opacity-50"
+                className="w-full pl-9 pr-10 py-2.5 bg-white border border-[#D8D6C9] rounded-xl text-xs text-[#263339] placeholder-[#465F64]/50 focus:outline-none focus:border-[#749190] focus:ring-1 focus:ring-[#749190] transition-all disabled:opacity-50"
               />
               <button
                 type="submit"
                 disabled={loading || (!inputQuestion.trim() && !selectedFile)}
-                className="absolute right-1.5 p-1.5 rounded-lg bg-[#b5c7d3] text-[#2c2624] font-bold hover:bg-[#a3b8c8] transition-all disabled:opacity-40"
+                className="absolute right-1.5 p-1.5 rounded-lg bg-[#749190] text-white font-bold hover:bg-[#5f7b7a] transition-all disabled:opacity-40"
               >
                 <Send className="w-3.5 h-3.5" />
               </button>

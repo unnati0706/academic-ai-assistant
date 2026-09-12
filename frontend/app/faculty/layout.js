@@ -54,28 +54,28 @@ export default function FacultyLayout({ children }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#241f1e] text-[#f5efeb]">
+    <div className="min-h-screen flex flex-col bg-[#fbf9f5] text-[#263339]">
       {/* Top Faculty Header */}
-      <header className="sticky top-0 z-40 bg-[#241f1e]/90 backdrop-blur-md border-b border-[#463c39]/70 px-6 py-4">
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-[#D8D6C9] px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center shadow-lg shadow-[#b5c7d3]/20">
-              <GraduationCap className="w-5 h-5 text-[#2c2624]" />
+            <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center shadow-md shadow-[#749190]/20">
+              <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="text-lg font-bold tracking-tight text-[#f5efeb]">Academic<span className="gradient-text">AI</span></span>
-              <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-[#a19588]/20 text-[#c8bfb8] border border-[#a19588]/30">Faculty Portal</span>
+              <span className="text-lg font-bold tracking-tight text-[#263339]">Academic<span className="gradient-text">AI</span></span>
+              <span className="ml-2 text-xs font-bold px-2 py-0.5 rounded-full bg-[#E6D9B9] text-[#263339] border border-[#D8D6C9]">Faculty Portal</span>
             </div>
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="hidden sm:flex items-center space-x-2 text-xs text-[#c8bfb8] bg-[#312a28] px-3 py-1.5 rounded-lg border border-[#463c39]">
-              <User className="w-3.5 h-3.5 text-[#b5c7d3]" />
-              <span className="font-medium font-mono text-[11px] text-[#f5efeb]">{user?.email || 'Faculty'}</span>
+            <div className="hidden sm:flex items-center space-x-2 text-xs text-[#465F64] bg-[#fbf9f5] px-3 py-1.5 rounded-lg border border-[#D8D6C9]">
+              <User className="w-3.5 h-3.5 text-[#749190]" />
+              <span className="font-semibold font-mono text-[11px] text-[#263339]">{user?.email || 'Faculty'}</span>
             </div>
             <button
               onClick={handleLogout}
-              className="p-2 rounded-lg bg-[#312a28] hover:bg-[#463c39] text-[#c8bfb8] hover:text-[#f5efeb] border border-[#463c39] transition-colors"
+              className="p-2 rounded-lg bg-white hover:bg-red-50 text-[#465F64] hover:text-red-600 border border-[#D8D6C9] transition-colors"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />

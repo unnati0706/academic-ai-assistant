@@ -9,7 +9,7 @@ export default function StudentLayout({ children }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-[#241f1e]">
+    <div className="flex min-h-screen bg-[#fbf9f5]">
       <Sidebar 
         mobileOpen={mobileSidebarOpen} 
         onCloseMobile={() => setMobileSidebarOpen(false)} 

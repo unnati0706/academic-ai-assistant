@@ -43,20 +43,20 @@ export default function PdfViewerModal({ isOpen, onClose, fileUrl, title }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 text-[#f5efeb]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 text-[#263339]">
       {/* Modal Container */}
       <div 
-        className="relative w-full max-w-5xl h-[92vh] max-h-[850px] bg-[#241f1e] border border-[#463c39] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+        className="relative w-full max-w-5xl h-[92vh] max-h-[850px] bg-white border border-[#D8D6C9] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Navigation Header */}
-        <div className="px-4 py-3 bg-[#312a28] border-b border-[#463c39] flex items-center justify-between gap-3 shrink-0">
+        <div className="px-4 py-3 bg-[#fbf9f5] border-b border-[#D8D6C9] flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center space-x-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-[#b5c7d3]/15 border border-[#b5c7d3]/30 flex items-center justify-center text-[#b5c7d3] shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-[#749190]/15 border border-[#749190]/30 flex items-center justify-center text-[#749190] shrink-0">
               <FileText className="w-4 h-4" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-xs sm:text-sm font-bold text-[#f5efeb] truncate max-w-[200px] sm:max-w-md md:max-w-lg">
+              <h3 className="text-xs sm:text-sm font-bold text-[#263339] truncate max-w-[200px] sm:max-w-md md:max-w-lg">
                 {title || 'Academic Document Preview'}
               </h3>
             </div>
@@ -64,14 +64,14 @@ export default function PdfViewerModal({ isOpen, onClose, fileUrl, title }) {
 
           {/* Action Controls */}
           <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
-            {/* Viewer Mode Switcher (helpful if google preview is slow) */}
-            <div className="hidden sm:flex items-center bg-[#282220] rounded-lg p-0.5 border border-[#463c39] text-[10px]">
+            {/* Viewer Mode Switcher */}
+            <div className="hidden sm:flex items-center bg-white rounded-lg p-0.5 border border-[#D8D6C9] text-[10px]">
               <button
                 onClick={() => { setViewerType('google'); setLoading(true); }}
-                className={`px-2 py-1 rounded-md transition-all font-medium ${
+                className={`px-2 py-1 rounded-md transition-all font-bold ${
                   viewerType === 'google' 
-                    ? 'bg-[#b5c7d3] text-[#2c2624] font-bold shadow' 
-                    : 'text-[#c8bfb8] hover:text-[#f5efeb]'
+                    ? 'bg-[#749190] text-white shadow-xs' 
+                    : 'text-[#465F64] hover:text-[#263339]'
                 }`}
                 title="Universal mobile-friendly cloud viewer"
               >
@@ -79,10 +79,10 @@ export default function PdfViewerModal({ isOpen, onClose, fileUrl, title }) {
               </button>
               <button
                 onClick={() => { setViewerType('direct'); setLoading(true); }}
-                className={`px-2 py-1 rounded-md transition-all font-medium ${
+                className={`px-2 py-1 rounded-md transition-all font-bold ${
                   viewerType === 'direct' 
-                    ? 'bg-[#b5c7d3] text-[#2c2624] font-bold shadow' 
-                    : 'text-[#c8bfb8] hover:text-[#f5efeb]'
+                    ? 'bg-[#749190] text-white shadow-xs' 
+                    : 'text-[#465F64] hover:text-[#263339]'
                 }`}
                 title="Direct browser PDF render"
               >
@@ -95,27 +95,27 @@ export default function PdfViewerModal({ isOpen, onClose, fileUrl, title }) {
               href={cleanUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-[#282220] hover:bg-[#463c39] border border-[#463c39] text-[#c8bfb8] hover:text-[#f5efeb] text-xs flex items-center space-x-1.5 transition-colors"
+              className="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-white hover:bg-[#fbf9f5] border border-[#D8D6C9] text-[#465F64] hover:text-[#263339] text-xs flex items-center space-x-1.5 transition-colors font-medium"
               title="Open raw PDF in new tab"
             >
-              <ExternalLink className="w-3.5 h-3.5 text-[#b5c7d3]" />
-              <span className="hidden sm:inline font-medium">New Tab</span>
+              <ExternalLink className="w-3.5 h-3.5 text-[#749190]" />
+              <span className="hidden sm:inline">New Tab</span>
             </a>
 
             {/* Download Button */}
             <button
               onClick={handleDownload}
-              className="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-[#b5c7d3]/20 hover:bg-[#b5c7d3]/30 border border-[#b5c7d3]/30 text-[#f5efeb] text-xs flex items-center space-x-1.5 transition-colors"
+              className="p-2 sm:px-3 sm:py-1.5 rounded-lg bg-[#749190]/15 hover:bg-[#749190]/25 border border-[#749190]/30 text-[#749190] text-xs font-bold flex items-center space-x-1.5 transition-colors"
               title="Download PDF to device"
             >
               <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline font-medium">Download</span>
+              <span className="hidden sm:inline">Download</span>
             </button>
 
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="p-2 rounded-lg bg-[#282220] hover:bg-red-500/20 hover:text-red-300 text-[#c8bfb8] border border-[#463c39] transition-colors"
+              className="p-2 rounded-lg bg-white hover:bg-red-50 hover:text-red-600 text-[#465F64] border border-[#D8D6C9] transition-colors"
               title="Close Preview"
             >
               <X className="w-4 h-4" />
@@ -124,19 +124,19 @@ export default function PdfViewerModal({ isOpen, onClose, fileUrl, title }) {
         </div>
 
         {/* PDF Frame Body */}
-        <div className="relative flex-1 w-full bg-[#1a1615] flex items-center justify-center overflow-hidden">
+        <div className="relative flex-1 w-full bg-[#f0ece1] flex items-center justify-center overflow-hidden">
           {loading && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#1a1615] z-10 space-y-3">
-              <div className="w-8 h-8 border-2 border-[#b5c7d3] border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-xs text-[#c8bfb8] font-medium">Rendering PDF for your device...</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#f0ece1] z-10 space-y-3">
+              <div className="w-8 h-8 border-2 border-[#749190] border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-xs text-[#465F64] font-semibold">Rendering PDF for your device...</p>
             </div>
           )}
 
           {hasError ? (
             <div className="p-6 text-center max-w-md space-y-4">
-              <AlertCircle className="w-10 h-10 text-amber-400 mx-auto" />
-              <h4 className="text-sm font-bold text-[#f5efeb]">Browser Preview Restricted</h4>
-              <p className="text-xs text-[#c8bfb8] leading-relaxed">
+              <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
+              <h4 className="text-sm font-bold text-[#263339]">Browser Preview Restricted</h4>
+              <p className="text-xs text-[#465F64] leading-relaxed">
                 This device's browser is blocking embedded preview. You can open it directly in a new tab or download the file.
               </p>
               <div className="flex justify-center gap-3 pt-2">
@@ -144,14 +144,14 @@ export default function PdfViewerModal({ isOpen, onClose, fileUrl, title }) {
                   href={cleanUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-xl bg-[#b5c7d3] text-[#2c2624] text-xs font-bold flex items-center space-x-1.5 hover:bg-[#a3b8c8] transition-colors"
+                  className="px-4 py-2 rounded-xl bg-[#749190] text-white text-xs font-bold flex items-center space-x-1.5 hover:bg-[#5f7b7a] transition-colors shadow-sm"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>Open in Browser</span>
                 </a>
                 <button
                   onClick={handleDownload}
-                  className="px-4 py-2 rounded-xl bg-[#312a28] text-[#f5efeb] text-xs font-semibold flex items-center space-x-1.5 hover:bg-[#463c39] transition-colors border border-[#463c39]"
+                  className="px-4 py-2 rounded-xl bg-white text-[#263339] text-xs font-bold flex items-center space-x-1.5 hover:bg-[#fbf9f5] transition-colors border border-[#D8D6C9]"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download</span>

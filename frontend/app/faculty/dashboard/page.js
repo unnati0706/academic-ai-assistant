@@ -67,74 +67,74 @@ function EditProfileModal({ user, currentProfile, onSave, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200 text-[#f5efeb]">
-      <div className="relative w-full max-w-md bg-[#312a28] border border-[#463c39] rounded-2xl shadow-2xl p-6" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200 text-[#263339]">
+      <div className="relative w-full max-w-md bg-white border border-[#D8D6C9] rounded-2xl shadow-2xl p-6" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-[#b5c7d3]/15 border border-[#b5c7d3]/30 flex items-center justify-center">
-              <Pencil className="w-4 h-4 text-[#b5c7d3]" />
+            <div className="w-8 h-8 rounded-lg bg-[#749190]/15 border border-[#749190]/30 flex items-center justify-center">
+              <Pencil className="w-4 h-4 text-[#749190]" />
             </div>
-            <h2 className="text-sm font-bold text-[#f5efeb]">Edit Faculty Profile</h2>
+            <h2 className="text-sm font-bold text-[#263339]">Edit Faculty Profile</h2>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-[#c8bfb8] hover:text-[#f5efeb] hover:bg-[#463c39] transition-colors">
+          <button onClick={onClose} className="p-1.5 rounded-lg text-[#465F64] hover:text-[#263339] hover:bg-[#fbf9f5] transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#c8bfb8] mb-1.5">Full Name</label>
+            <label className="block text-xs font-semibold text-[#263339] mb-1.5">Full Name</label>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="e.g. Dr. Anita Sharma"
-              className="w-full px-3.5 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#D8D6C9] rounded-xl text-xs text-[#263339] placeholder-[#465F64]/50 focus:outline-none focus:border-[#749190] focus:ring-1 focus:ring-[#749190] transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#c8bfb8] mb-1.5">Institutional Email</label>
+            <label className="block text-xs font-semibold text-[#263339] mb-1.5">Institutional Email</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="e.g. dr.smith@academic.edu"
-              className="w-full px-3.5 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all font-mono"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#D8D6C9] rounded-xl text-xs text-[#263339] placeholder-[#465F64]/50 focus:outline-none focus:border-[#749190] focus:ring-1 focus:ring-[#749190] transition-all font-mono"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#c8bfb8] mb-1.5">Department</label>
+            <label className="block text-xs font-semibold text-[#263339] mb-1.5">Department</label>
             <input
               type="text"
               value={department}
               onChange={e => setDepartment(e.target.value)}
               placeholder="e.g. Computer Science & Engineering"
-              className="w-full px-3.5 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#D8D6C9] rounded-xl text-xs text-[#263339] placeholder-[#465F64]/50 focus:outline-none focus:border-[#749190] focus:ring-1 focus:ring-[#749190] transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#c8bfb8] mb-1.5">Designation / Title</label>
+            <label className="block text-xs font-semibold text-[#263339] mb-1.5">Designation / Title</label>
             <input
               type="text"
               value={designation}
               onChange={e => setDesignation(e.target.value)}
               placeholder="e.g. Associate Professor"
-              className="w-full px-3.5 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#D8D6C9] rounded-xl text-xs text-[#263339] placeholder-[#465F64]/50 focus:outline-none focus:border-[#749190] focus:ring-1 focus:ring-[#749190] transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#c8bfb8] mb-1.5">Short Bio / Office Info</label>
+            <label className="block text-xs font-semibold text-[#263339] mb-1.5">Short Bio / Office Info</label>
             <textarea
               value={bio}
               onChange={e => setBio(e.target.value)}
               placeholder="Brief background, research interests, or office location..."
               rows={3}
-              className="w-full px-3.5 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all resize-none"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#D8D6C9] rounded-xl text-xs text-[#263339] placeholder-[#465F64]/50 focus:outline-none focus:border-[#749190] focus:ring-1 focus:ring-[#749190] transition-all resize-none"
             />
           </div>
 
@@ -142,17 +142,17 @@ function EditProfileModal({ user, currentProfile, onSave, onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl bg-[#282220] hover:bg-[#463c39] border border-[#463c39] text-[#c8bfb8] hover:text-[#f5efeb] text-xs font-semibold transition-all"
+              className="flex-1 py-2.5 rounded-xl bg-[#fbf9f5] hover:bg-[#D8D6C9]/40 border border-[#D8D6C9] text-[#465F64] text-xs font-semibold transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 py-2.5 rounded-xl gradient-bg hover:opacity-90 text-[#2c2624] font-bold text-xs shadow-lg shadow-[#b5c7d3]/20 transition-all disabled:opacity-60 flex items-center justify-center space-x-2"
+              className="flex-1 py-2.5 rounded-xl gradient-bg hover:opacity-90 text-white font-bold text-xs shadow-lg shadow-[#749190]/20 transition-all disabled:opacity-60 flex items-center justify-center space-x-2"
             >
               {saving ? (
-                <div className="w-4 h-4 border-2 border-[#2c2624] border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
                   <CheckCircle2 className="w-3.5 h-3.5" />
@@ -172,21 +172,21 @@ function SemesterGroup({ semester, items, onArchive, onDelete, actionLoading }) 
   const [open, setOpen] = useState(true);
 
   return (
-    <div className="border border-[#463c39] rounded-xl overflow-hidden">
+    <div className="border border-[#D8D6C9] rounded-xl overflow-hidden bg-white">
       {/* Accordion Header */}
       <button
         type="button"
         onClick={() => setOpen(prev => !prev)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-[#312a28] hover:bg-[#463c39]/70 transition-colors text-left"
+        className="w-full flex items-center justify-between px-4 py-3 bg-[#fbf9f5] hover:bg-[#D8D6C9]/30 transition-colors text-left border-b border-[#D8D6C9]"
       >
         <div className="flex items-center space-x-2.5">
           {open ? (
-            <ChevronDown className="w-4 h-4 text-[#b5c7d3]" />
+            <ChevronDown className="w-4 h-4 text-[#749190]" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-[#b5c7d3]" />
+            <ChevronRight className="w-4 h-4 text-[#749190]" />
           )}
-          <span className="text-xs font-bold text-[#f5efeb]">Semester {semester}</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#a19588]/20 text-[#c8bfb8] border border-[#a19588]/30">
+          <span className="text-xs font-bold text-[#263339]">Semester {semester}</span>
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E6D9B9] text-[#263339] border border-[#D8D6C9]">
             {items.length} {items.length === 1 ? 'item' : 'items'}
           </span>
         </div>
@@ -195,30 +195,30 @@ function SemesterGroup({ semester, items, onArchive, onDelete, actionLoading }) 
       {/* Accordion Body */}
       {open && (
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-[#f5efeb]">
-            <thead className="bg-[#282220] text-[#c8bfb8] uppercase text-[10px] font-bold">
+          <table className="w-full text-left text-xs text-[#263339]">
+            <thead className="bg-[#fbf9f5] text-[#465F64] uppercase text-[10px] font-bold border-b border-[#D8D6C9]/60">
               <tr>
-                <th className="px-4 py-3 rounded-l-lg">Material</th>
+                <th className="px-4 py-3">Material</th>
                 <th className="px-3 py-3">Unit</th>
                 <th className="px-3 py-3">Status</th>
-                <th className="px-4 py-3 text-right rounded-r-lg">Actions</th>
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#463c39]/60">
+            <tbody className="divide-y divide-[#D8D6C9]/60">
               {items.map((mat) => (
-                <tr key={mat.id} className="hover:bg-[#463c39]/20 transition-colors">
+                <tr key={mat.id} className="hover:bg-[#fbf9f5] transition-colors">
                   <td className="px-4 py-3.5 max-w-xs">
-                    <div className="font-semibold text-[#f5efeb] line-clamp-1">{mat.title}</div>
-                    <div className="text-[10px] text-[#c8bfb8] mt-0.5">{mat.subject_name || 'Computer Science'} • {mat.material_type}</div>
+                    <div className="font-bold text-[#263339] line-clamp-1">{mat.title}</div>
+                    <div className="text-[10px] text-[#465F64] mt-0.5 font-medium">{mat.subject_name || 'Computer Science'} • {mat.material_type}</div>
                   </td>
-                  <td className="px-3 py-3.5 font-mono text-[11px] text-[#c8bfb8]">
+                  <td className="px-3 py-3.5 font-mono text-[11px] text-[#465F64] font-semibold">
                     {mat.unit ? `Unit ${mat.unit}` : '—'}
                   </td>
                   <td className="px-3 py-3.5">
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
                       (mat.status || '').toUpperCase() === 'ARCHIVED'
-                        ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                        : 'bg-[#b5c7d3]/15 text-[#b5c7d3] border border-[#b5c7d3]/30'
+                        ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                        : 'bg-[#749190]/15 text-[#749190] border border-[#749190]/30'
                     }`}>
                       {(mat.status || 'ACTIVE').toUpperCase() === 'ARCHIVED' ? 'ARCHIVED' : 'ACTIVE'}
                     </span>
@@ -230,7 +230,7 @@ function SemesterGroup({ semester, items, onArchive, onDelete, actionLoading }) 
                           href={mat.file_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1.5 rounded-lg bg-[#282220] hover:bg-[#463c39] text-[#c8bfb8] hover:text-[#f5efeb] border border-[#463c39] transition-colors"
+                          className="p-1.5 rounded-lg bg-white hover:bg-[#fbf9f5] text-[#465F64] hover:text-[#263339] border border-[#D8D6C9] transition-colors"
                           title="View / Open Document"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
@@ -242,7 +242,7 @@ function SemesterGroup({ semester, items, onArchive, onDelete, actionLoading }) 
                           download
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1.5 rounded-lg bg-[#282220] hover:bg-[#463c39] text-[#c8bfb8] hover:text-[#f5efeb] border border-[#463c39] transition-colors"
+                          className="p-1.5 rounded-lg bg-white hover:bg-[#fbf9f5] text-[#465F64] hover:text-[#263339] border border-[#D8D6C9] transition-colors"
                           title="Download Document"
                         >
                           <Download className="w-3.5 h-3.5" />
@@ -254,8 +254,8 @@ function SemesterGroup({ semester, items, onArchive, onDelete, actionLoading }) 
                         disabled={actionLoading[mat.id] === 'archive'}
                         className={`p-1.5 rounded-lg border transition-colors disabled:opacity-40 ${
                           (mat.status || '').toUpperCase() === 'ARCHIVED'
-                            ? 'bg-[#b5c7d3]/10 hover:bg-[#b5c7d3]/20 text-[#b5c7d3] border-[#b5c7d3]/30'
-                            : 'bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+                            ? 'bg-[#749190]/15 hover:bg-[#749190]/25 text-[#749190] border-[#749190]/30'
+                            : 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-300'
                         }`}
                         title={(mat.status || '').toUpperCase() === 'ARCHIVED' ? "Restore / Unarchive Material" : "Archive Material"}
                       >
@@ -265,7 +265,7 @@ function SemesterGroup({ semester, items, onArchive, onDelete, actionLoading }) 
                       <button
                         onClick={() => onDelete(mat.id)}
                         disabled={actionLoading[mat.id] === 'delete'}
-                        className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 transition-colors disabled:opacity-40"
+                        className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition-colors disabled:opacity-40"
                         title="Delete Material"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -504,34 +504,34 @@ export default function FacultyDashboard() {
   const displayDept = profileData?.department || "Department of Computer Science";
 
   return (
-    <div className="space-y-8 text-[#f5efeb]">
+    <div className="space-y-8 text-[#263339]">
       {/* Header Profile Section */}
-      <div className="glass-card p-6 rounded-2xl border border-[#463c39] bg-[#312a28]/80 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-white p-6 rounded-2xl border border-[#D8D6C9] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center space-x-4">
-          <div className="w-14 h-14 rounded-2xl gradient-bg flex items-center justify-center text-[#2c2624] font-bold text-xl shadow-lg shadow-[#b5c7d3]/20">
+          <div className="w-14 h-14 rounded-2xl gradient-bg flex items-center justify-center text-white font-bold text-xl shadow-md shadow-[#749190]/20">
             {displayName.charAt(0).toUpperCase()}
           </div>
           <div>
-            <h1 className="text-xl font-bold text-[#f5efeb] tracking-tight">{displayName}</h1>
-            <p className="text-xs text-[#c8bfb8] mt-0.5 flex flex-wrap items-center gap-1.5">
-              <span className="font-mono text-[11px] text-[#f5efeb]">{displayEmail}</span>
+            <h1 className="text-xl font-bold text-[#263339] tracking-tight">{displayName}</h1>
+            <p className="text-xs text-[#465F64] mt-0.5 flex flex-wrap items-center gap-1.5">
+              <span className="font-mono text-[11px] text-[#263339] font-medium">{displayEmail}</span>
               <span>•</span>
               <span>{displayDept}</span>
             </p>
             {profileData?.designation && (
-              <p className="text-[11px] text-[#b5c7d3] font-medium mt-0.5">{profileData.designation}</p>
+              <p className="text-[11px] text-[#749190] font-bold mt-0.5">{profileData.designation}</p>
             )}
           </div>
         </div>
 
         <div className="flex items-center space-x-3">
           <div className="text-right">
-            <div className="text-xl font-extrabold text-[#f5efeb]">{materials.length}</div>
-            <div className="text-[11px] text-[#c8bfb8] uppercase tracking-wider">Uploaded Materials</div>
+            <div className="text-xl font-extrabold text-[#263339]">{materials.length}</div>
+            <div className="text-[11px] text-[#465F64] uppercase font-semibold tracking-wider">Uploaded Materials</div>
           </div>
           <button
             onClick={() => setShowEditProfile(true)}
-            className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-[#b5c7d3]/15 hover:bg-[#b5c7d3]/25 border border-[#b5c7d3]/30 text-[#b5c7d3] hover:text-[#f5efeb] text-xs font-semibold transition-all"
+            className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-[#749190]/15 hover:bg-[#749190]/25 border border-[#749190]/30 text-[#749190] text-xs font-bold transition-all"
             title="Edit Faculty Profile"
           >
             <Pencil className="w-3.5 h-3.5" />
@@ -543,21 +543,21 @@ export default function FacultyDashboard() {
       {/* Main Grid: Upload + History */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Upload Form */}
-        <div className="lg:col-span-5 glass-panel p-6 rounded-2xl border border-[#463c39] bg-[#312a28]/80 space-y-5">
-          <div className="flex items-center space-x-2 pb-3 border-b border-[#463c39]">
-            <UploadCloud className="w-5 h-5 text-[#b5c7d3]" />
-            <h2 className="text-base font-bold text-[#f5efeb]">Upload Faculty Material</h2>
+        <div className="lg:col-span-5 bg-white p-6 rounded-2xl border border-[#D8D6C9] shadow-sm space-y-5">
+          <div className="flex items-center space-x-2 pb-3 border-b border-[#D8D6C9]">
+            <UploadCloud className="w-5 h-5 text-[#749190]" />
+            <h2 className="text-base font-bold text-[#263339]">Upload Faculty Material</h2>
           </div>
 
           {uploadMessage && (
-            <div className="p-3.5 rounded-xl bg-[#b5c7d3]/15 border border-[#b5c7d3]/30 text-[#b5c7d3] text-xs flex items-center space-x-2">
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <div className="p-3.5 rounded-xl bg-[#749190]/15 border border-[#749190]/30 text-[#263339] text-xs flex items-center space-x-2 font-medium">
+              <CheckCircle2 className="w-4 h-4 text-[#749190] shrink-0" />
               <span>{uploadMessage}</span>
             </div>
           )}
 
           {uploadError && (
-            <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center space-x-2">
+            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs flex items-center space-x-2 font-medium">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{uploadError}</span>
             </div>
@@ -565,35 +565,35 @@ export default function FacultyDashboard() {
 
           <form onSubmit={handleUploadSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-[#c8bfb8] mb-1">Document Title *</label>
+              <label className="block text-xs font-semibold text-[#263339] mb-1">Document Title *</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Operating Systems - Unit 2 Memory Management"
                 required
-                className="w-full px-3.5 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all"
+                className="w-full px-3.5 py-2.5 bg-white border border-[#D8D6C9] rounded-xl text-xs text-[#263339] placeholder-[#465F64]/50 focus:outline-none focus:border-[#749190] focus:ring-1 focus:ring-[#749190] transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#c8bfb8] mb-1">Description</label>
+              <label className="block text-xs font-semibold text-[#263339] mb-1">Description</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Brief summary of covered concepts..."
                 rows={2}
-                className="w-full px-3.5 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all"
+                className="w-full px-3.5 py-2.5 bg-white border border-[#D8D6C9] rounded-xl text-xs text-[#263339] placeholder-[#465F64]/50 focus:outline-none focus:border-[#749190] focus:ring-1 focus:ring-[#749190] transition-all"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#c8bfb8] mb-1">Semester</label>
+                <label className="block text-xs font-semibold text-[#263339] mb-1">Semester</label>
                 <select
                   value={semester}
                   onChange={(e) => setSemester(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] focus:outline-none focus:border-[#b5c7d3]"
+                  className="w-full px-3 py-2.5 bg-white border border-[#D8D6C9] rounded-xl text-xs text-[#263339] focus:outline-none focus:border-[#749190] font-medium"
                 >
                   {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
                     <option key={s} value={s}>Semester {s}</option>
@@ -602,11 +602,11 @@ export default function FacultyDashboard() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#c8bfb8] mb-1">Unit</label>
+                <label className="block text-xs font-semibold text-[#263339] mb-1">Unit</label>
                 <select
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] focus:outline-none focus:border-[#b5c7d3]"
+                  className="w-full px-3 py-2.5 bg-white border border-[#D8D6C9] rounded-xl text-xs text-[#263339] focus:outline-none focus:border-[#749190] font-medium"
                 >
                   {[1, 2, 3, 4, 5].map(u => (
                     <option key={u} value={u}>Unit {u}</option>
@@ -616,11 +616,11 @@ export default function FacultyDashboard() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#c8bfb8] mb-1">Material Type</label>
+              <label className="block text-xs font-semibold text-[#263339] mb-1">Material Type</label>
               <select
                 value={materialType}
                 onChange={(e) => setMaterialType(e.target.value)}
-                className="w-full px-3 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] focus:outline-none focus:border-[#b5c7d3]"
+                className="w-full px-3 py-2.5 bg-white border border-[#D8D6C9] rounded-xl text-xs text-[#263339] focus:outline-none focus:border-[#749190] font-medium"
               >
                 <option value="notes">Lecture Notes</option>
                 <option value="question_paper">Question Paper</option>
@@ -631,24 +631,24 @@ export default function FacultyDashboard() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#c8bfb8] mb-1">Upload Document File (PDF) *</label>
+              <label className="block text-xs font-semibold text-[#263339] mb-1">Upload Document File (PDF) *</label>
               <input
                 type="file"
                 accept=".pdf,.doc,.docx"
                 onChange={(e) => setFile(e.target.files[0] || null)}
                 required
-                className="w-full px-3 py-2 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#c8bfb8] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#b5c7d3] file:text-[#2c2624] hover:file:bg-[#a3b8c8] transition-all"
+                className="w-full px-3 py-2 bg-white border border-[#D8D6C9] rounded-xl text-xs text-[#465F64] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#749190] file:text-white hover:file:bg-[#5f7b7a] transition-all"
               />
             </div>
 
             <button
               type="submit"
               disabled={uploading}
-              className="w-full py-3 px-4 rounded-xl gradient-bg hover:opacity-90 text-[#2c2624] font-bold text-xs flex items-center justify-center space-x-2 shadow-lg shadow-[#b5c7d3]/20 transition-all disabled:opacity-50 mt-2"
+              className="w-full py-3 px-4 rounded-xl gradient-bg hover:opacity-90 text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-lg shadow-[#749190]/25 transition-all disabled:opacity-50 mt-2"
             >
               {uploading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-[#2c2624] border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>Uploading...</span>
                 </>
               ) : (
@@ -662,25 +662,25 @@ export default function FacultyDashboard() {
         </div>
 
         {/* History — Semester-wise Grouped */}
-        <div className="lg:col-span-7 glass-panel p-6 rounded-2xl border border-[#463c39] bg-[#312a28]/80 space-y-4 flex flex-col">
-          <div className="flex items-center justify-between pb-3 border-b border-[#463c39]">
+        <div className="lg:col-span-7 bg-white p-6 rounded-2xl border border-[#D8D6C9] shadow-sm space-y-4 flex flex-col">
+          <div className="flex items-center justify-between pb-3 border-b border-[#D8D6C9]">
             <div className="flex items-center space-x-2">
-              <FileText className="w-5 h-5 text-[#b5c7d3]" />
-              <h2 className="text-base font-bold text-[#f5efeb]">Uploaded Materials History</h2>
+              <FileText className="w-5 h-5 text-[#749190]" />
+              <h2 className="text-base font-bold text-[#263339]">Uploaded Materials History</h2>
             </div>
-            <span className="text-xs text-[#c8bfb8] font-mono">{materials.length} Items</span>
+            <span className="text-xs text-[#465F64] font-mono font-bold">{materials.length} Items</span>
           </div>
 
           {loadingHistory ? (
             <div className="py-20 flex justify-center items-center space-x-3">
-              <div className="w-6 h-6 border-2 border-[#b5c7d3] border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-xs text-[#c8bfb8]">Loading uploaded materials...</span>
+              <div className="w-6 h-6 border-2 border-[#749190] border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-xs text-[#465F64] font-semibold">Loading uploaded materials...</span>
             </div>
           ) : materials.length === 0 ? (
-            <div className="py-16 text-center border border-dashed border-[#463c39] rounded-xl">
-              <BookOpen className="w-10 h-10 text-[#b5c7d3]/30 mx-auto mb-2" />
-              <h4 className="text-sm font-semibold text-[#f5efeb]">No materials uploaded yet</h4>
-              <p className="text-xs text-[#c8bfb8] max-w-xs mx-auto mt-1">
+            <div className="py-16 text-center border border-dashed border-[#D8D6C9] rounded-xl bg-[#fbf9f5]">
+              <BookOpen className="w-10 h-10 text-[#749190]/40 mx-auto mb-2" />
+              <h4 className="text-sm font-bold text-[#263339]">No materials uploaded yet</h4>
+              <p className="text-xs text-[#465F64] max-w-xs mx-auto mt-1">
                 Upload your course lecture notes or syllabus above to populate this history table.
               </p>
             </div>

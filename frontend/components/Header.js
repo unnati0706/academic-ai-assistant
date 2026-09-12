@@ -49,14 +49,14 @@ export default function Header({ onOpenMobileSidebar = () => {} }) {
   };
 
   return (
-    <header className="h-16 border-b border-[#463c39]/70 bg-[#241f1e]/90 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30">
+    <header className="h-16 border-b border-[#D8D6C9] bg-white/90 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30">
       {/* Left side: Mobile Menu Button */}
       <div className="flex items-center space-x-2.5 sm:space-x-4">
         {/* Mobile Hamburger Button */}
         <button
           type="button"
           onClick={onOpenMobileSidebar}
-          className="md:hidden p-2 rounded-xl bg-[#312a28] hover:bg-[#463c39] text-[#c8bfb8] hover:text-[#f5efeb] transition-colors border border-[#463c39]"
+          className="md:hidden p-2 rounded-xl bg-white hover:bg-[#fbf9f5] text-[#465F64] hover:text-[#263339] transition-colors border border-[#D8D6C9]"
           title="Open menu"
         >
           <Menu className="w-5 h-5" />
@@ -64,10 +64,10 @@ export default function Header({ onOpenMobileSidebar = () => {} }) {
 
         {/* Brand mark for mobile */}
         <div className="md:hidden flex items-center space-x-2">
-          <div className="w-7 h-7 rounded-lg gradient-bg flex items-center justify-center">
-            <GraduationCap className="w-4 h-4 text-[#2c2624]" />
+          <div className="w-7 h-7 rounded-lg gradient-bg flex items-center justify-center text-white">
+            <GraduationCap className="w-4 h-4 text-white" />
           </div>
-          <span className="text-sm font-bold text-[#f5efeb]">Academic<span className="gradient-text">AI</span></span>
+          <span className="text-sm font-bold text-[#263339]">Academic<span className="gradient-text">AI</span></span>
         </div>
       </div>
 
@@ -77,27 +77,27 @@ export default function Header({ onOpenMobileSidebar = () => {} }) {
         <div className="relative">
           <button
             onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="flex items-center space-x-2 sm:space-x-3 p-1 sm:p-1.5 rounded-xl hover:bg-[#312a28] transition-colors border border-transparent hover:border-[#463c39]"
+            className="flex items-center space-x-2 sm:space-x-3 p-1 sm:p-1.5 rounded-xl hover:bg-[#fbf9f5] transition-colors border border-transparent hover:border-[#D8D6C9]"
           >
-            <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-[#2c2624] font-bold text-xs shadow-md shadow-[#b5c7d3]/20 shrink-0">
+            <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white font-bold text-xs shadow-sm shadow-[#749190]/20 shrink-0">
               {user?.name ? user.name.charAt(0).toUpperCase() : 'S'}
             </div>
             <div className="hidden sm:block text-left">
-              <div className="text-xs font-semibold text-[#f5efeb] leading-tight">{user?.name || 'Student Portal'}</div>
-              <div className="text-[10px] text-[#c8bfb8]">{user?.role === 'faculty_admin' ? 'Faculty Admin' : 'CS Student'}</div>
+              <div className="text-xs font-bold text-[#263339] leading-tight">{user?.name || 'Student Portal'}</div>
+              <div className="text-[10px] text-[#465F64] font-medium">{user?.role === 'faculty_admin' ? 'Faculty Admin' : 'CS Student'}</div>
             </div>
-            <ChevronDown className="w-3.5 h-3.5 text-[#c8bfb8] shrink-0" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#465F64] shrink-0" />
           </button>
 
           {showProfileMenu && (
-            <div className="absolute right-0 mt-2 w-52 sm:w-56 glass-panel rounded-xl shadow-2xl p-2 z-50 border border-[#463c39] bg-[#312a28]/95 animate-in fade-in duration-150">
-              <div className="px-3 py-2 border-b border-[#463c39] mb-1">
-                <p className="text-xs font-semibold text-[#f5efeb] truncate">{user?.name || 'User Profile'}</p>
-                {user?.email && <p className="text-[10px] text-[#c8bfb8] truncate font-mono">{user.email}</p>}
+            <div className="absolute right-0 mt-2 w-52 sm:w-56 bg-white rounded-xl shadow-xl p-2 z-50 border border-[#D8D6C9] animate-in fade-in duration-150">
+              <div className="px-3 py-2 border-b border-[#D8D6C9] mb-1">
+                <p className="text-xs font-bold text-[#263339] truncate">{user?.name || 'User Profile'}</p>
+                {user?.email && <p className="text-[10px] text-[#465F64] truncate font-mono">{user.email}</p>}
               </div>
               <button
                 onClick={handleLogout}
-                className="w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-red-400 hover:bg-red-500/10 flex items-center space-x-2 transition-colors"
+                className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50 flex items-center space-x-2 transition-colors"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Sign Out</span>
