@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { UploadCloud, FileText, Trash2, Archive, ExternalLink, Download, CheckCircle2, AlertCircle, User, BookOpen, Pencil, X, ChevronDown, ChevronRight } from 'lucide-react';
 import { getStoredUser, getStoredToken } from '@/lib/auth';
@@ -262,6 +262,7 @@ export default function FacultyDashboard() {
   const [showEditProfile, setShowEditProfile] = useState(false);
 
   // Upload Form State
+  const fileInputRef = useRef(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [subjectId, setSubjectId] = useState('00000000-0000-0000-0000-000000000101');
@@ -304,7 +305,14 @@ export default function FacultyDashboard() {
     } catch (_) {}
 
     // Guard check
-    const token = getStoredToken();
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('token') ||
+          localStorage.getItem('access_token') ||
+          localStorage.getItem('academic_ai_token') ||
+          getStoredToken()
+        : null;
+
     if (!token) {
       console.warn("Faculty Dashboard: No auth token found. Redirecting to /login.");
       router.push('/login');
@@ -314,7 +322,14 @@ export default function FacultyDashboard() {
   }, [router]);
 
   async function fetchFacultyHistory() {
-    const token = getStoredToken();
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('token') ||
+          localStorage.getItem('access_token') ||
+          localStorage.getItem('academic_ai_token') ||
+          getStoredToken()
+        : null;
+
     if (!token) {
       router.push('/login');
       return;
@@ -338,7 +353,14 @@ export default function FacultyDashboard() {
   const handleUploadSubmit = async (e) => {
     e.preventDefault();
 
-    const token = getStoredToken();
+    const token =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('token') ||
+          localStorage.getItem('access_token') ||
+          localStorage.getItem('academic_ai_token') ||
+          getStoredToken()
+        : null;
+
     if (!token) {
       setUploadError("Session expired or missing auth token. Redirecting to login...");
       setTimeout(() => router.push('/login'), 1200);
@@ -356,26 +378,40 @@ export default function FacultyDashboard() {
 
     try {
       const formData = new FormData();
-      formData.append("title", title);
-      if (description) formData.append("description", description);
-      formData.append("subject_id", subjectId);
+      formData.append("title", title.trim());
+      if (description) formData.append("description", description.trim());
       formData.append("semester", semester);
       formData.append("unit", unit);
       formData.append("material_type", materialType);
-      formData.append("faculty_id", facultyId);
+      if (subjectId) formData.append("subject_id", subjectId);
+      if (facultyId) formData.append("faculty_id", facultyId);
       formData.append("file", file);
 
-      await api.uploadMaterial(formData);
-      
+      const res = await api.uploadMaterial(formData);
+
+      // Prepend the new document to the materials list immediately
+      if (res) {
+        setMaterials(prev => [res, ...prev.filter(m => m.id !== res.id)]);
+      }
+
       setUploadMessage("Material uploaded successfully! Document has been indexed for RAG vector search.");
       setTitle('');
       setDescription('');
       setFile(null);
-      
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+
+      // Re-fetch faculty history in background for database synchronization
       fetchFacultyHistory();
     } catch (err) {
       console.error("Upload handler caught error:", err);
-      setUploadError(err.message || "Material upload failed. Please verify backend service connectivity.");
+      const errorMessage =
+        err?.response?.data?.detail ||
+        err?.detail ||
+        err?.message ||
+        (typeof err === 'object' ? JSON.stringify(err) : String(err));
+      setUploadError(errorMessage || "Material upload failed. Please verify backend service connectivity.");
     } finally {
       setUploading(false);
     }
@@ -563,6 +599,7 @@ export default function FacultyDashboard() {
             <div>
               <label className="block text-xs font-semibold text-[#c8ded7] mb-1">Upload Document File (PDF) *</label>
               <input
+                ref={fileInputRef}
                 type="file"
                 accept=".pdf,.doc,.docx"
                 onChange={(e) => setFile(e.target.files[0] || null)}

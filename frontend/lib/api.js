@@ -4,7 +4,12 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/a
  * Generic API fetch wrapper with Authorization header injection.
  */
 export async function apiFetch(endpoint, options = {}) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("academic_ai_token") : null;
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("token") ||
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("academic_ai_token")
+      : null;
 
   const headers = { ...options.headers };
 
@@ -13,7 +18,7 @@ export async function apiFetch(endpoint, options = {}) {
     headers["Content-Type"] = "application/json";
   }
 
-  if (token) {
+  if (token && !headers["Authorization"]) {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
@@ -26,14 +31,36 @@ export async function apiFetch(endpoint, options = {}) {
     const res = await fetch(`${API_BASE_URL}${endpoint}`, config);
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.detail || `Request failed with status ${res.status}`);
+      let detailMsg = errorData.detail || errorData.message || errorData.error;
+      if (Array.isArray(detailMsg)) {
+        detailMsg = detailMsg
+          .map((d) =>
+            typeof d === "object" && d.msg
+              ? `${d.loc ? d.loc.slice(1).join(".") + ": " : ""}${d.msg}`
+              : typeof d === "object"
+              ? JSON.stringify(d)
+              : String(d)
+          )
+          .join(", ");
+      } else if (typeof detailMsg === "object" && detailMsg !== null) {
+        detailMsg = JSON.stringify(detailMsg);
+      }
+      throw new Error(detailMsg || `Request failed with status ${res.status}`);
     }
     if (res.status === 204) return null;
     return await res.json();
   } catch (err) {
-    const errorMsg = (err.message === "Failed to fetch" || err.name === "TypeError")
-      ? `Unable to connect to backend server at ${API_BASE_URL}. Please ensure backend is running.`
-      : err.message;
+    const rawMsg =
+      err?.response?.data?.detail ||
+      err?.detail ||
+      err?.message ||
+      (typeof err === "object" ? JSON.stringify(err) : String(err));
+    const errorMsg =
+      rawMsg === "Failed to fetch" || err.name === "TypeError"
+        ? `Unable to connect to backend server at ${API_BASE_URL}. Please ensure backend is running.`
+        : typeof rawMsg === "object"
+        ? JSON.stringify(rawMsg)
+        : String(rawMsg);
     console.warn(`API call failed for ${endpoint}:`, errorMsg);
     throw new Error(errorMsg);
   }
