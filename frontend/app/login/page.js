@@ -83,6 +83,16 @@ export default function LoginPage() {
     }
   };
 
+  const handleDemoLogin = (role) => {
+    if (role === 'faculty') {
+      setSession('demo_faculty_token_12345', MOCK_FACULTY_USER);
+      router.push('/faculty/dashboard');
+    } else {
+      setSession('demo_student_token_12345', MOCK_STUDENT_USER);
+      router.push('/student/dashboard');
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#151f1d] text-[#f4f1ea] p-4">
       {/* Ambient background blobs */}
@@ -142,6 +152,18 @@ export default function LoginPage() {
             <p className="text-[#8fb1a5] text-xs mt-1">
               Enter your email address to receive an OTP code.
             </p>
+          </div>
+
+          {/* Instant Sign-In Action Button */}
+          <div className="mb-6">
+            <button
+              type="button"
+              onClick={() => handleDemoLogin(selectedRole)}
+              className="w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-xl bg-[#4f7c6e]/20 hover:bg-[#4f7c6e]/30 border border-[#4f7c6e]/40 text-[#5ea891] hover:text-[#c8ded7] text-xs font-semibold shadow-sm transition-all"
+            >
+              <span>Instant {selectedRole === 'faculty' ? 'Faculty' : 'Student'} Sign-In</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {error && (

@@ -322,14 +322,18 @@ export default function FacultyDashboard() {
 
     setLoadingHistory(true);
     try {
-      const data = await api.getFacultyMaterials(facultyId).catch(async (err) => {
+      let data = await api.getFacultyMaterials(facultyId).catch(async (err) => {
         console.warn("Primary faculty materials fetch warning, trying fallback:", err.message);
         return await api.getMaterials({ uploaded_by: facultyId }).catch(() => []);
       });
+      if (!data || data.length === 0) {
+        data = await api.getMaterials().catch(() => []);
+      }
       setMaterials(data || []);
     } catch (err) {
       console.error("Error fetching faculty history:", err);
-      setMaterials([]);
+      const fallbackData = await api.getMaterials().catch(() => []);
+      setMaterials(fallbackData || []);
     } finally {
       setLoadingHistory(false);
     }

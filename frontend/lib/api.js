@@ -4,7 +4,12 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/a
  * Generic API fetch wrapper with Authorization header injection.
  */
 export async function apiFetch(endpoint, options = {}) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("academic_ai_token") : null;
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("academic_ai_token") ||
+        localStorage.getItem("token") ||
+        localStorage.getItem("access_token")
+      : null;
 
   const headers = { ...options.headers };
 
@@ -79,6 +84,16 @@ export const api = {
 
   // Question Papers
   getPapers: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.semester) query.append("semester", params.semester);
+    if (params.subject_id) query.append("subject_id", params.subject_id);
+    if (params.exam_type) query.append("exam_type", params.exam_type);
+    if (params.year) query.append("year", params.year);
+    if (params.search) query.append("search", params.search);
+    const queryString = query.toString() ? `?${query.toString()}` : "";
+    return apiFetch(`/papers${queryString}`);
+  },
+  getQuestionPapers: (params = {}) => {
     const query = new URLSearchParams();
     if (params.semester) query.append("semester", params.semester);
     if (params.subject_id) query.append("subject_id", params.subject_id);
