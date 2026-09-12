@@ -27,16 +27,24 @@ def get_db() -> Generator:
     finally:
         db.close()
 
+
 def init_db() -> None:
-    """Initialize database extension pgvector, create tables, and seed default users."""
+    """Initialize database tables and seed default users.
+    Skips pgvector extension if not available - uses JSON-based embedding fallback.
+    """
     import uuid
     from app.models.base import Base
     import app.models  # noqa: F401
     from app.models.user import User, UserRole
 
-    with engine.begin() as conn:
-        conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
-    
+    # Create tables (skip pgvector extension if not available)
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+    except Exception:
+        # pgvector not installed - tables will be created but embedding column will be JSON
+        print("Note: pgvector extension not available, using JSON-based embedding fallback")
+
     Base.metadata.create_all(bind=engine)
 
     try:
@@ -51,4 +59,3 @@ def init_db() -> None:
             db.commit()
     except Exception as e:
         print(f"User seed warning: {e}")
-

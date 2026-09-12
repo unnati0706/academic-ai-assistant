@@ -1,9 +1,8 @@
 import uuid
-from sqlalchemy import Text, Integer, DateTime, ForeignKey
+from sqlalchemy import Text, Integer, DateTime, ForeignKey, JSON
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
-from pgvector.sqlalchemy import Vector
 from app.models.base import Base
 
 class DocumentChunk(Base):
@@ -17,7 +16,7 @@ class DocumentChunk(Base):
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
     page_number: Mapped[int] = mapped_column(Integer, nullable=False)
-    embedding = mapped_column(Vector(768), nullable=True)
+    embedding = mapped_column(JSON, nullable=True)
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
