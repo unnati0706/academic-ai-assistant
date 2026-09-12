@@ -8,6 +8,10 @@ import { api } from '@/lib/api';
 
 // ─── Field component ──────────────────────────────────────────────────────────
 function Field({ label, type = 'text', value, onChange, placeholder, icon: Icon, rightEl }) {
+  const safeOnChange = (e) => {
+    if (!e || !e.target) return;
+    onChange(e);
+  };
   return (
     <div>
       <label className="block text-xs font-semibold text-[#c8ded7] mb-1.5">{label}</label>
@@ -18,7 +22,7 @@ function Field({ label, type = 'text', value, onChange, placeholder, icon: Icon,
         <input
           type={type}
           value={value}
-          onChange={onChange}
+          onChange={safeOnChange}
           placeholder={placeholder}
           required
           className={`w-full ${Icon ? 'pl-10' : 'pl-3.5'} ${rightEl ? 'pr-10' : 'pr-3.5'} py-3 bg-[#1e2c29] border border-[#2e433e] rounded-xl text-sm text-[#f4f1ea] placeholder-[#8fb1a5]/50 focus:outline-none focus:border-[#4f7c6e] focus:ring-1 focus:ring-[#4f7c6e]/30 transition-all`}
@@ -34,12 +38,16 @@ function Field({ label, type = 'text', value, onChange, placeholder, icon: Icon,
 // ─── Password Field ───────────────────────────────────────────────────────────
 function PasswordField({ label, value, onChange, placeholder }) {
   const [show, setShow] = useState(false);
+  const safeOnChange = (e) => {
+    if (!e || !e.target) return;
+    onChange(e);
+  };
   return (
     <Field
       label={label}
       type={show ? 'text' : 'password'}
       value={value}
-      onChange={onChange}
+      onChange={safeOnChange}
       placeholder={placeholder}
       icon={Lock}
       rightEl={
@@ -116,13 +124,22 @@ export default function LoginPage() {
         );
       }
 
-      // Merge any extra display data into the stored user
+      // Safely extract token — backend may return access_token or token
+      const token = response?.access_token || response?.token;
+      if (!token) throw new Error('Login failed: no token received from server.');
+
+      // Safely build the user object — response.user may be undefined
       const userData = {
-        ...response.user,
-        name: response.user.name || name.trim() || response.user.email,
-        role: response.user.role,
+        id: response?.user?.id ?? null,
+        email: response?.user?.email ?? email,
+        name: (response?.user?.name ?? name.trim()) || (response?.user?.email ?? email),
+        role: response?.user?.role ?? (selectedRole === 'faculty' ? 'faculty_admin' : 'student'),
+        phone: response?.user?.phone ?? null,
+        semester: selectedRole === 'student' ? parseInt(semester) || null : null,
+        department: selectedRole === 'faculty' ? department.trim() || null : null,
+        created_at: response?.user?.created_at ?? new Date().toISOString(),
       };
-      setSession(response.access_token, userData);
+      setSession(token, userData);
 
       const isFaculty = userData.role === 'faculty_admin' || selectedRole === 'faculty';
       router.push(isFaculty ? '/faculty/dashboard' : '/student/dashboard');
@@ -267,7 +284,7 @@ export default function LoginPage() {
                 <PasswordField
                   label="Confirm Password"
                   value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
+                  onChange={e => { if (e?.target) setConfirmPassword(e.target.value); }}
                   placeholder="Re-enter your password"
                 />
               )}
@@ -277,7 +294,7 @@ export default function LoginPage() {
                 <Field
                   label="Department"
                   value={department}
-                  onChange={e => setDepartment(e.target.value)}
+                  onChange={e => { if (e?.target) setDepartment(e.target.value); }}
                   placeholder="e.g. Computer Science & Engineering"
                   icon={Briefcase}
                 />
@@ -291,7 +308,7 @@ export default function LoginPage() {
                     <BookOpen className="w-4 h-4 text-[#8fb1a5] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <select
                       value={semester}
-                      onChange={e => setSemester(e.target.value)}
+                      onChange={e => { if (e?.target) setSemester(e.target.value ?? '1'); }}
                       required
                       className="w-full pl-10 pr-3.5 py-3 bg-[#1e2c29] border border-[#2e433e] rounded-xl text-sm text-[#f4f1ea] focus:outline-none focus:border-[#4f7c6e] focus:ring-1 focus:ring-[#4f7c6e]/30 transition-all appearance-none"
                     >
