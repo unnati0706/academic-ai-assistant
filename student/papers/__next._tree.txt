@@ -1,2 +1,2 @@
 :HL["/academic-ai-assistant/_next/static/chunks/3pv20ud22r5pc.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"student","param":null,"prefetchHints":4192,"slots":{"children":{"name":"papers","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}}}},"staleTime":300,"buildId":"FnD_BVD8gLxgq1jjWZJAW"}
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"student","param":null,"prefetchHints":4192,"slots":{"children":{"name":"papers","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}}}},"staleTime":300,"buildId":"LUy7eBKVFKpZ5-H1DFZl5"}
