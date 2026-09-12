@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { GraduationCap, LogOut, ShieldCheck, User } from 'lucide-react';
+import { GraduationCap, LogOut, User } from 'lucide-react';
 import { getStoredUser, clearSession } from '@/lib/auth';
 
 export default function FacultyLayout({ children }) {
@@ -15,28 +15,28 @@ export default function FacultyLayout({ children }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0b0f19] text-gray-100">
+    <div className="min-h-screen flex flex-col bg-[#151f1d] text-[#f4f1ea]">
       {/* Top Faculty Header */}
-      <header className="sticky top-0 z-40 bg-[#0d121f]/90 backdrop-blur-md border-b border-gray-800/80 px-6 py-4">
+      <header className="sticky top-0 z-40 bg-[#151f1d]/90 backdrop-blur-md border-b border-[#2e433e]/70 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center shadow-lg shadow-purple-500/20">
+            <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center shadow-lg shadow-[#4f7c6e]/20">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="text-lg font-bold tracking-tight text-white">Academic<span className="gradient-text">AI</span></span>
-              <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Faculty Portal</span>
+              <span className="text-lg font-bold tracking-tight text-[#f4f1ea]">Academic<span className="gradient-text">AI</span></span>
+              <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-[#4f7c6e]/20 text-[#8fb1a5] border border-[#4f7c6e]/30">Faculty Portal</span>
             </div>
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="hidden sm:flex items-center space-x-2 text-xs text-gray-300 bg-gray-900/80 px-3 py-1.5 rounded-lg border border-gray-800">
-              <User className="w-3.5 h-3.5 text-purple-400" />
+            <div className="hidden sm:flex items-center space-x-2 text-xs text-[#8fb1a5] bg-[#1e2c29] px-3 py-1.5 rounded-lg border border-[#2e433e]">
+              <User className="w-3.5 h-3.5 text-[#5ea891]" />
               <span className="font-medium">{user?.email || 'Dr. Faculty Member'}</span>
             </div>
             <button
               onClick={handleLogout}
-              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+              className="p-2 rounded-lg bg-[#1e2c29] hover:bg-[#2e433e] text-[#8fb1a5] hover:text-[#f4f1ea] border border-[#2e433e] transition-colors"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />

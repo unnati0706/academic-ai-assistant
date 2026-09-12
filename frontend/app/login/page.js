@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sparkles, GraduationCap, ShieldCheck, BookOpen, ArrowRight, CheckCircle2, Mail } from 'lucide-react';
+import { GraduationCap, ShieldCheck, ArrowRight, CheckCircle2, Mail } from 'lucide-react';
 import { setSession, MOCK_STUDENT_USER, MOCK_FACULTY_USER } from '@/lib/auth';
 import { api } from '@/lib/api';
 
@@ -83,88 +83,39 @@ export default function LoginPage() {
     }
   };
 
-  const handleDemoLogin = (role) => {
-    setError('');
-    setLoading(true);
-    setTimeout(() => {
-      if (role === 'student') {
-        setSession('demo_student_token', { ...MOCK_STUDENT_USER, role: 'student' });
-        router.push('/student/dashboard');
-      } else {
-        setSession('demo_faculty_token', { ...MOCK_FACULTY_USER, role: 'faculty_admin' });
-        router.push('/faculty/dashboard');
-      }
-    }, 400);
-  };
-
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-12 bg-[#0b0f19] text-gray-100">
-      {/* Left Branding Hero Section */}
-      <div className="lg:col-span-6 xl:col-span-7 relative flex flex-col justify-between p-8 lg:p-12 overflow-hidden border-r border-gray-800/60 bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-950">
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute top-1/2 right-0 w-80 h-80 bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
-
-        {/* Header Logo */}
-        <div className="relative z-10 flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <GraduationCap className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <span className="text-xl font-bold tracking-tight text-white">Academic<span className="gradient-text">AI</span></span>
-            <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">v2.0</span>
-          </div>
-        </div>
-
-        {/* Hero Content */}
-        <div className="relative z-10 my-auto py-12 max-w-xl">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-medium mb-6">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>AI-Powered RAG Academic Portal & Repository</span>
-          </div>
-          <h1 className="text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight mb-6">
-            Intelligent Academic Materials & AI RAG Assistant.
-          </h1>
-          <p className="text-gray-400 text-lg leading-relaxed mb-8">
-            Access OCR-parsed course materials, past question papers, and query an AI tutor trained strictly on your faculty materials with page-level citations.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="glass-panel p-4 rounded-xl flex items-start space-x-3">
-              <BookOpen className="w-5 h-5 text-indigo-400 shrink-0 mt-1" />
-              <div>
-                <h4 className="text-sm font-semibold text-white">Course Repository</h4>
-                <p className="text-xs text-gray-400 mt-0.5">Organized by subject, semester, and unit</p>
-              </div>
-            </div>
-            <div className="glass-panel p-4 rounded-xl flex items-start space-x-3">
-              <ShieldCheck className="w-5 h-5 text-purple-400 shrink-0 mt-1" />
-              <div>
-                <h4 className="text-sm font-semibold text-white">Strict Source Citations</h4>
-                <p className="text-xs text-gray-400 mt-0.5">Page-level material search & RAG</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="relative z-10 text-xs text-gray-500 flex items-center justify-between border-t border-gray-800/80 pt-6">
-          <span>© 2026 AcademicAI Portal. All rights reserved.</span>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-[#151f1d] text-[#f4f1ea] p-4">
+      {/* Ambient background blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-[#4f7c6e]/15 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-80 h-80 bg-[#3d6459]/12 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#2e5048]/8 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Right Login Section */}
-      <div className="lg:col-span-6 xl:col-span-5 flex flex-col justify-center p-8 lg:p-14 bg-[#0d121f]">
-        <div className="max-w-md w-full mx-auto">
+      <div className="relative z-10 w-full max-w-md">
+        {/* Brand Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl gradient-bg shadow-xl shadow-[#4f7c6e]/25 mb-4">
+            <GraduationCap className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#f4f1ea]">
+            Academic<span className="gradient-text">AI</span>
+          </h1>
+          <p className="text-xs text-[#8fb1a5] mt-1 font-medium">Academic Portal & Course Repository</p>
+        </div>
+
+        {/* Auth Card */}
+        <div className="glass-panel rounded-2xl p-6 sm:p-8 border border-[#2e433e]">
           {/* Role Selector Tabs */}
           <div className="mb-6">
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Select Portal Role</label>
-            <div className="grid grid-cols-2 gap-2 p-1.5 rounded-xl bg-gray-900 border border-gray-800">
+            <label className="block text-xs font-semibold text-[#8fb1a5] uppercase tracking-wider mb-2">Select Portal Role</label>
+            <div className="grid grid-cols-2 gap-2 p-1.5 rounded-xl bg-[#1e2c29] border border-[#2e433e]">
               <button
                 type="button"
                 onClick={() => setSelectedRole('student')}
                 className={`py-2.5 px-4 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-2 ${selectedRole === 'student'
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'text-gray-400 hover:text-gray-200'
+                    ? 'bg-[#4f7c6e] text-white shadow-md shadow-[#4f7c6e]/30'
+                    : 'text-[#8fb1a5] hover:text-[#f4f1ea]'
                   }`}
               >
                 <GraduationCap className="w-4 h-4" />
@@ -174,8 +125,8 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setSelectedRole('faculty')}
                 className={`py-2.5 px-4 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-2 ${selectedRole === 'faculty'
-                    ? 'bg-purple-600 text-white shadow-md'
-                    : 'text-gray-400 hover:text-gray-200'
+                    ? 'bg-[#4f7c6e] text-white shadow-md shadow-[#4f7c6e]/30'
+                    : 'text-[#8fb1a5] hover:text-[#f4f1ea]'
                   }`}
               >
                 <ShieldCheck className="w-4 h-4" />
@@ -185,31 +136,16 @@ export default function LoginPage() {
           </div>
 
           <div className="mb-6">
-            <h2 className="text-2xl lg:text-3xl font-bold text-white tracking-tight">
+            <h2 className="text-xl font-bold text-[#f4f1ea] tracking-tight">
               {selectedRole === 'faculty' ? 'Faculty Sign In' : 'Student Sign In'}
             </h2>
-            <p className="text-gray-400 text-sm mt-1">
+            <p className="text-[#8fb1a5] text-xs mt-1">
               Enter your email address to receive an OTP code.
             </p>
           </div>
 
-          {/* Dev Demo Sign-in */}
-          <div className="mb-6 p-4 rounded-xl bg-gray-900/80 border border-indigo-500/20">
-            <span className="text-xs font-semibold text-indigo-300 uppercase tracking-wider block mb-2">
-              ⚡ Dev-Login Bypass
-            </span>
-            <button
-              type="button"
-              onClick={() => handleDemoLogin(selectedRole)}
-              className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-200 text-xs font-medium transition-all"
-            >
-              <span>Instant {selectedRole === 'faculty' ? 'Faculty' : 'Student'} Sign-In</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
           {error && (
-            <div className="mb-6 p-3.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center space-x-2">
+            <div className="mb-5 p-3.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center space-x-2">
               <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0"></span>
               <span>{error}</span>
             </div>
@@ -218,16 +154,16 @@ export default function LoginPage() {
           {step === 'email' ? (
             <form onSubmit={handleSendOtp} className="space-y-5">
               <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1.5">Email Address</label>
+                <label className="block text-xs font-medium text-[#c8ded7] mb-1.5">Email Address</label>
                 <div className="relative">
-                  <Mail className="w-5 h-5 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-5 h-5 text-[#8fb1a5] absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={selectedRole === 'faculty' ? 'dr.smith@academic.edu' : 'student@academic.edu'}
                     required
-                    className="w-full pl-11 pr-4 py-3 bg-gray-900/90 border border-gray-700/80 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500 transition-all"
+                    className="w-full pl-11 pr-4 py-3 bg-[#1e2c29] border border-[#2e433e] rounded-xl text-[#f4f1ea] placeholder-[#8fb1a5]/50 text-sm focus:outline-none focus:border-[#4f7c6e] transition-all"
                   />
                 </div>
               </div>
@@ -235,7 +171,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 px-4 rounded-xl gradient-bg hover:opacity-95 text-white font-medium text-sm flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/25 transition-all disabled:opacity-50"
+                className="w-full py-3.5 px-4 rounded-xl gradient-bg hover:opacity-90 text-white font-medium text-sm flex items-center justify-center space-x-2 shadow-lg shadow-[#4f7c6e]/25 transition-all disabled:opacity-50"
               >
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -250,18 +186,18 @@ export default function LoginPage() {
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-6">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">OTP sent to <strong className="text-white">{email}</strong></span>
+                <span className="text-xs text-[#8fb1a5]">OTP sent to <strong className="text-[#f4f1ea]">{email}</strong></span>
                 <button
                   type="button"
                   onClick={() => setStep('email')}
-                  className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+                  className="text-xs text-[#5ea891] hover:text-[#8fb1a5] transition-colors"
                 >
                   Change Email
                 </button>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-300 mb-2">Enter 6-Digit OTP Code</label>
+                <label className="block text-xs font-medium text-[#c8ded7] mb-2">Enter 6-Digit OTP Code</label>
                 <div className="flex space-x-2 justify-between">
                   {otp.map((digit, idx) => (
                     <input
@@ -272,7 +208,7 @@ export default function LoginPage() {
                       value={digit}
                       onChange={(e) => handleOtpChange(idx, e.target.value)}
                       onKeyDown={(e) => handleKeyDown(idx, e)}
-                      className="w-12 h-13 text-center bg-gray-900/90 border border-gray-700/80 rounded-xl text-white text-lg font-bold focus:outline-none focus:border-indigo-500 transition-all"
+                      className="w-12 h-12 text-center bg-[#1e2c29] border border-[#2e433e] rounded-xl text-[#f4f1ea] text-lg font-bold focus:outline-none focus:border-[#4f7c6e] transition-all"
                     />
                   ))}
                 </div>
@@ -281,7 +217,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 px-4 rounded-xl gradient-bg hover:opacity-95 text-white font-medium text-sm flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/25 transition-all disabled:opacity-50"
+                className="w-full py-3.5 px-4 rounded-xl gradient-bg hover:opacity-90 text-white font-medium text-sm flex items-center justify-center space-x-2 shadow-lg shadow-[#4f7c6e]/25 transition-all disabled:opacity-50"
               >
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -295,6 +231,10 @@ export default function LoginPage() {
             </form>
           )}
         </div>
+
+        <p className="text-center text-xs text-[#8fb1a5]/60 mt-6">
+          © 2026 AcademicAI Portal. All rights reserved.
+        </p>
       </div>
     </div>
   );

@@ -64,27 +64,26 @@ export default function QuestionPapersPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">University Question Paper Archive</h1>
-          <p className="text-xs text-gray-400 mt-1">Previous years mid-semester & end-semester university exam papers.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#f4f1ea] tracking-tight">University Question Paper Archive</h1>
         </div>
 
-        <div className="inline-flex items-center space-x-2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-purple-500/10 text-purple-300 border border-purple-500/20 self-start sm:self-auto">
-          <FileText className="w-4 h-4 text-purple-400" />
-          <span>{papers.length} Papers Archived</span>
+        <div className="inline-flex items-center space-x-2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#4f7c6e]/10 text-[#8fb1a5] border border-[#4f7c6e]/20 self-start sm:self-auto">
+          <FileText className="w-4 h-4 text-[#5ea891]" />
+          <span>{papers.length} Papers</span>
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="glass-panel p-3.5 sm:p-4 rounded-2xl border border-gray-800 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 sm:gap-3">
+      <div className="glass-panel p-3.5 sm:p-4 rounded-2xl border border-[#2e433e] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 sm:gap-3">
         {/* Search */}
         <div className="sm:col-span-2 lg:col-span-6 relative">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#8fb1a5] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search paper title, subject code..."
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-900/90 border border-gray-700/80 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-[#1e2c29] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] placeholder-[#8fb1a5]/50 focus:outline-none focus:border-[#4f7c6e] transition-all"
           />
         </div>
 
@@ -93,7 +92,7 @@ export default function QuestionPapersPage() {
           <select
             value={examType}
             onChange={(e) => setExamType(e.target.value)}
-            className="w-full px-3 py-2.5 bg-gray-900/90 border border-gray-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500 transition-all"
+            className="w-full px-3 py-2.5 bg-[#1e2c29] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] focus:outline-none focus:border-[#4f7c6e] transition-all"
           >
             <option value="">All Exam Types</option>
             <option value="mid-sem">Mid-Semester Exam</option>
@@ -106,7 +105,7 @@ export default function QuestionPapersPage() {
           <select
             value={year}
             onChange={(e) => setYear(e.target.value)}
-            className="w-full px-3 py-2.5 bg-gray-900/90 border border-gray-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500 transition-all"
+            className="w-full px-3 py-2.5 bg-[#1e2c29] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] focus:outline-none focus:border-[#4f7c6e] transition-all"
           >
             <option value="">All Years</option>
             {[2026, 2025, 2024, 2023, 2022].map(y => (
@@ -119,14 +118,14 @@ export default function QuestionPapersPage() {
       {/* Question Papers Cards Grid */}
       {loading ? (
         <div className="py-20 flex justify-center items-center space-x-3">
-          <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-xs text-gray-400 font-medium">Loading question papers...</span>
+          <div className="w-8 h-8 border-4 border-[#4f7c6e] border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs text-[#8fb1a5] font-medium">Loading question papers...</span>
         </div>
       ) : papers.length === 0 ? (
-        <div className="glass-panel rounded-2xl p-10 sm:p-12 text-center border border-gray-800">
-          <FileText className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-          <h3 className="text-sm font-bold text-white">No question papers found</h3>
-          <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+        <div className="glass-panel rounded-2xl p-10 sm:p-12 text-center border border-[#2e433e]">
+          <FileText className="w-12 h-12 text-[#4f7c6e]/40 mx-auto mb-3" />
+          <h3 className="text-sm font-bold text-[#f4f1ea]">No question papers found</h3>
+          <p className="text-xs text-[#8fb1a5] mt-1 max-w-sm mx-auto">
             Try adjusting your search criteria or year selection.
           </p>
         </div>
@@ -135,35 +134,35 @@ export default function QuestionPapersPage() {
           {papers.map((paper) => (
             <div
               key={paper.id}
-              className="glass-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between space-y-4 border border-gray-800 hover:border-purple-500/40 transition-all group"
+              className="glass-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between space-y-4 border border-[#2e433e] hover:border-[#4f7c6e]/40 transition-all group"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase bg-[#4f7c6e]/20 text-[#8fb1a5] border border-[#4f7c6e]/25">
                     {paper.exam_type === 'mid-sem' ? 'Mid-Semester' : 'University End-Sem'}
                   </span>
                   {paper.year && (
-                    <div className="flex items-center space-x-1 text-[11px] text-gray-400 bg-gray-800/80 px-2 py-0.5 rounded-md border border-gray-700/50">
-                      <Calendar className="w-3 h-3 text-gray-400" />
+                    <div className="flex items-center space-x-1 text-[11px] text-[#8fb1a5] bg-[#1e2c29] px-2 py-0.5 rounded-md border border-[#2e433e]">
+                      <Calendar className="w-3 h-3 text-[#8fb1a5]" />
                       <span>{paper.year}</span>
                     </div>
                   )}
                 </div>
 
-                <h3 className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors line-clamp-2 leading-snug">
+                <h3 className="text-sm font-bold text-[#f4f1ea] group-hover:text-[#c8ded7] transition-colors line-clamp-2 leading-snug">
                   {paper.title}
                 </h3>
-                <p className="text-[11px] text-indigo-400 font-medium mt-1">{paper.subject_name || paper.subject_code || 'Computer Science'}</p>
+                <p className="text-[11px] text-[#5ea891] font-medium mt-1">{paper.subject_name || paper.subject_code || 'Computer Science'}</p>
               </div>
 
-              <div className="pt-3.5 border-t border-gray-800/80 flex items-center space-x-2">
+              <div className="pt-3.5 border-t border-[#2e433e] flex items-center space-x-2">
                 {(paper.file_url || paper.file_path || paper.id) && (
                   <button
                     type="button"
                     onClick={() => handleOpenPdf(paper)}
-                    className="flex-1 py-2.5 px-3 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-200 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all active:scale-[0.98]"
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-[#4f7c6e]/20 hover:bg-[#4f7c6e]/30 border border-[#4f7c6e]/30 text-[#c8ded7] text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all active:scale-[0.98]"
                   >
-                    <Eye className="w-3.5 h-3.5 text-purple-400" />
+                    <Eye className="w-3.5 h-3.5 text-[#5ea891]" />
                     <span>View PDF</span>
                   </button>
                 )}
@@ -172,7 +171,7 @@ export default function QuestionPapersPage() {
                   <button
                     type="button"
                     onClick={() => handleDownload(paper.file_url || paper.file_path, paper.title)}
-                    className="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 transition-colors"
+                    className="p-2.5 rounded-xl bg-[#1e2c29] hover:bg-[#2e433e] text-[#8fb1a5] transition-colors border border-[#2e433e]"
                     title="Download Paper PDF"
                   >
                     <Download className="w-4 h-4" />
