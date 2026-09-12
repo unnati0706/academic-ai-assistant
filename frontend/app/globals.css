@@ -2,16 +2,18 @@
 
 @layer base {
   :root {
-    --bg-primary: #151f1d;
-    --bg-secondary: #1e2c29;
-    --bg-card: #1e2c29;
-    --text-main: #f4f1ea;
-    --text-muted: #8fb1a5;
-    --accent-primary: #4f7c6e;
-    --accent-light: #8fb1a5;
-    --accent-subtle: #c8ded7;
-    --accent-highlight: #5ea891;
-    --border-card: #2e433e;
+    --bg-primary: #241f1e;
+    --bg-secondary: #312a28;
+    --bg-card: #312a28;
+    --bg-input: #282220;
+    --text-main: #f5efeb;
+    --text-muted: #c8bfb8;
+    --accent-primary: #b5c7d3;
+    --accent-hover: #a3b8c8;
+    --accent-light: #b5c7d3;
+    --accent-subtle: #a19588;
+    --accent-highlight: #b5c7d3;
+    --border-card: #463c39;
   }
 
   body {
@@ -25,42 +27,43 @@
 
 /* Glassmorphism Utilities */
 .glass-panel {
-  background: rgba(30, 44, 41, 0.75);
+  background: rgba(49, 42, 40, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(79, 124, 110, 0.15);
+  border: 1px solid rgba(181, 199, 211, 0.15);
 }
 
 .glass-card {
-  background: rgba(30, 44, 41, 0.6);
+  background: rgba(49, 42, 40, 0.6);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(79, 124, 110, 0.12);
+  border: 1px solid rgba(70, 60, 57, 0.6);
   transition: all 0.25s ease-in-out;
 }
 
 .glass-card:hover {
-  background: rgba(30, 44, 41, 0.85);
-  border-color: rgba(79, 124, 110, 0.35);
+  background: rgba(49, 42, 40, 0.85);
+  border-color: rgba(181, 199, 211, 0.35);
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px -10px rgba(79, 124, 110, 0.18);
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.35);
 }
 
 /* Custom Animated Gradients */
 .gradient-text {
-  background: linear-gradient(135deg, #8fb1a5 0%, #c8ded7 50%, #5ea891 100%);
+  background: linear-gradient(135deg, #b5c7d3 0%, #f5efeb 50%, #a19588 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .gradient-bg {
-  background: linear-gradient(135deg, #4f7c6e 0%, #3d6459 50%, #2e5048 100%);
+  background: linear-gradient(135deg, #b5c7d3 0%, #a3b8c8 50%, #8ea5b6 100%);
+  color: #2c2624;
 }
 
 .gradient-border {
   position: relative;
   border-radius: 0.75rem;
   background: linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
-    linear-gradient(135deg, #4f7c6e, #8fb1a5, #5ea891) border-box;
+    linear-gradient(135deg, #b5c7d3, #a19588, #463c39) border-box;
   border: 1px solid transparent;
 }
 
@@ -71,16 +74,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(21, 31, 29, 0.6);
+  background: rgba(36, 31, 30, 0.6);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(79, 124, 110, 0.35);
+  background: rgba(181, 199, 211, 0.3);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(79, 124, 110, 0.6);
+  background: rgba(181, 199, 211, 0.55);
 }
 
 /* Pulsating Animation for Loading State */
@@ -113,7 +116,7 @@
 /* ── Markdown body inside chat messages ── */
 .markdown-body {
   line-height: 1.65;
-  color: #c8ded7;
+  color: #f5efeb;
 }
 
 .markdown-body > *:first-child {

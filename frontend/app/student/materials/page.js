@@ -62,30 +62,30 @@ export default function MaterialsPage() {
   }, [semester, unit, typeFilter, searchQuery]);
 
   return (
-    <div className="space-y-5 sm:space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-5 sm:space-y-6 max-w-7xl mx-auto text-[#f5efeb]">
       {/* Page Title Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#f4f1ea] tracking-tight">Academic Resource Explorer</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#f5efeb] tracking-tight">Academic Resource Explorer</h1>
         </div>
 
-        <div className="inline-flex items-center space-x-2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#4f7c6e]/10 text-[#8fb1a5] border border-[#4f7c6e]/20 self-start sm:self-auto">
-          <BookOpen className="w-4 h-4 text-[#5ea891]" />
+        <div className="inline-flex items-center space-x-2 text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#b5c7d3]/10 text-[#c8bfb8] border border-[#b5c7d3]/20 self-start sm:self-auto">
+          <BookOpen className="w-4 h-4 text-[#b5c7d3]" />
           <span>{materials.length} Materials Available</span>
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="glass-panel p-3.5 sm:p-4 rounded-2xl border border-[#2e433e] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 sm:gap-3">
+      <div className="glass-panel p-3.5 sm:p-4 rounded-2xl border border-[#463c39] bg-[#312a28]/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 sm:gap-3">
         {/* Search Input */}
         <div className="sm:col-span-2 lg:col-span-4 relative">
-          <Search className="w-4 h-4 text-[#8fb1a5] absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#a19588] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search title, unit, subject..."
-            className="w-full pl-10 pr-4 py-2.5 bg-[#1e2c29] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] placeholder-[#8fb1a5]/50 focus:outline-none focus:border-[#4f7c6e] transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all"
           />
         </div>
 
@@ -94,7 +94,7 @@ export default function MaterialsPage() {
           <select
             value={semester}
             onChange={(e) => setSemester(e.target.value)}
-            className="w-full px-3 py-2.5 bg-[#1e2c29] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] focus:outline-none focus:border-[#4f7c6e] transition-all"
+            className="w-full px-3 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] focus:outline-none focus:border-[#b5c7d3] transition-all"
           >
             <option value="">All Semesters</option>
             {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
@@ -108,7 +108,7 @@ export default function MaterialsPage() {
           <select
             value={unit}
             onChange={(e) => setUnit(e.target.value)}
-            className="w-full px-3 py-2.5 bg-[#1e2c29] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] focus:outline-none focus:border-[#4f7c6e] transition-all"
+            className="w-full px-3 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] focus:outline-none focus:border-[#b5c7d3] transition-all"
           >
             <option value="">All Units</option>
             {[1, 2, 3, 4, 5].map(u => (
@@ -122,7 +122,7 @@ export default function MaterialsPage() {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="w-full px-3 py-2.5 bg-[#1e2c29] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] focus:outline-none focus:border-[#4f7c6e] transition-all"
+            className="w-full px-3 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] focus:outline-none focus:border-[#b5c7d3] transition-all"
           >
             <option value="">All Types</option>
             <option value="notes">Notes</option>
@@ -137,14 +137,14 @@ export default function MaterialsPage() {
       {/* Resource Card Grid */}
       {loading ? (
         <div className="py-20 flex justify-center items-center space-x-3">
-          <div className="w-8 h-8 border-4 border-[#4f7c6e] border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-xs text-[#8fb1a5] font-medium">Fetching study materials...</span>
+          <div className="w-8 h-8 border-4 border-[#b5c7d3] border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs text-[#c8bfb8] font-medium">Fetching study materials...</span>
         </div>
       ) : materials.length === 0 ? (
-        <div className="glass-panel rounded-2xl p-10 sm:p-12 text-center border border-[#2e433e]">
-          <BookOpen className="w-12 h-12 text-[#4f7c6e]/40 mx-auto mb-3" />
-          <h3 className="text-sm font-bold text-[#f4f1ea]">No uploaded materials found</h3>
-          <p className="text-xs text-[#8fb1a5] mt-1 max-w-sm mx-auto">
+        <div className="glass-panel rounded-2xl p-10 sm:p-12 text-center border border-[#463c39] bg-[#312a28]/60">
+          <BookOpen className="w-12 h-12 text-[#b5c7d3]/40 mx-auto mb-3" />
+          <h3 className="text-sm font-bold text-[#f5efeb]">No uploaded materials found</h3>
+          <p className="text-xs text-[#c8bfb8] mt-1 max-w-sm mx-auto">
             Materials will appear here when uploaded by faculty members.
           </p>
         </div>
@@ -153,47 +153,47 @@ export default function MaterialsPage() {
           {materials.map((mat) => (
             <div
               key={mat.id}
-              className="glass-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between space-y-4 border border-[#2e433e] hover:border-[#4f7c6e]/40 transition-all group"
+              className="glass-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between space-y-4 border border-[#463c39] hover:border-[#b5c7d3]/40 transition-all group"
             >
               <div>
                 {/* Header badges */}
                 <div className="flex items-center justify-between mb-3">
-                  <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase bg-[#4f7c6e]/20 text-[#8fb1a5] border border-[#4f7c6e]/25">
+                  <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase bg-[#a19588]/20 text-[#c8bfb8] border border-[#a19588]/30">
                     {mat.material_type || 'PDF'}
                   </span>
                   {mat.unit && (
-                    <span className="text-[11px] font-semibold text-[#8fb1a5] bg-[#1e2c29] px-2 py-0.5 rounded-md border border-[#2e433e]">
+                    <span className="text-[11px] font-semibold text-[#c8bfb8] bg-[#282220] px-2 py-0.5 rounded-md border border-[#463c39]">
                       Unit {mat.unit}
                     </span>
                   )}
                 </div>
 
-                <h3 className="text-sm font-bold text-[#f4f1ea] group-hover:text-[#c8ded7] transition-colors line-clamp-2 leading-snug">
+                <h3 className="text-sm font-bold text-[#f5efeb] group-hover:text-[#b5c7d3] transition-colors line-clamp-2 leading-snug">
                   {mat.title}
                 </h3>
-                <p className="text-[11px] text-[#5ea891] font-medium mt-1">{mat.subject_name || mat.subject_code || 'Computer Science'}</p>
+                <p className="text-[11px] text-[#b5c7d3] font-medium mt-1">{mat.subject_name || mat.subject_code || 'Computer Science'}</p>
 
                 {mat.uploader && (
-                  <div className="flex items-center space-x-1.5 text-[11px] text-[#8fb1a5] mt-2">
-                    <User className="w-3 h-3 text-[#5ea891]" />
+                  <div className="flex items-center space-x-1.5 text-[11px] text-[#c8bfb8] mt-2">
+                    <User className="w-3 h-3 text-[#b5c7d3]" />
                     <span>Uploaded by: {mat.uploader.email || 'Faculty'}</span>
                   </div>
                 )}
 
-                <p className="text-xs text-[#8fb1a5] mt-2 line-clamp-3 leading-relaxed">
+                <p className="text-xs text-[#c8bfb8] mt-2 line-clamp-3 leading-relaxed">
                   {mat.description || 'Verified course document.'}
                 </p>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-3.5 border-t border-[#2e433e] flex items-center space-x-2">
+              <div className="pt-3.5 border-t border-[#463c39] flex items-center space-x-2">
                 {(mat.file_url || mat.file_path || mat.id) && (
                   <button
                     type="button"
                     onClick={() => handleOpenPdf(mat)}
-                    className="flex-1 py-2.5 px-3 rounded-xl bg-[#4f7c6e]/20 hover:bg-[#4f7c6e]/30 border border-[#4f7c6e]/30 text-[#c8ded7] text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all active:scale-[0.98]"
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-[#b5c7d3]/20 hover:bg-[#b5c7d3]/30 border border-[#b5c7d3]/30 text-[#f5efeb] text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all active:scale-[0.98]"
                   >
-                    <Eye className="w-3.5 h-3.5 text-[#5ea891]" />
+                    <Eye className="w-3.5 h-3.5 text-[#b5c7d3]" />
                     <span>View PDF</span>
                   </button>
                 )}
@@ -201,7 +201,7 @@ export default function MaterialsPage() {
                 <button
                   type="button"
                   onClick={() => handleDownload(mat.file_url || mat.file_path, mat.title)}
-                  className="p-2.5 rounded-xl bg-[#1e2c29] hover:bg-[#2e433e] text-[#8fb1a5] transition-colors border border-[#2e433e]"
+                  className="p-2.5 rounded-xl bg-[#282220] hover:bg-[#463c39] text-[#c8bfb8] hover:text-[#f5efeb] transition-colors border border-[#463c39]"
                   title="Download PDF"
                 >
                   <Download className="w-4 h-4" />

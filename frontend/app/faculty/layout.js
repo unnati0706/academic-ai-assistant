@@ -27,17 +27,22 @@ export default function FacultyLayout({ children }) {
         }
       } catch (_) {}
 
+      const effectiveEmail = profile?.email || stored?.email || '';
+      const effectiveName = profile?.name || stored?.name || 'Faculty Member';
+
       setUser({
         ...stored,
-        email: profile?.email || stored?.email || 'dr.smith@academic.edu',
-        name: profile?.name || stored?.name || 'Dr. Robert Smith'
+        email: effectiveEmail,
+        name: effectiveName,
       });
     };
 
     syncUser();
+    window.addEventListener('faculty_profile_updated', syncUser);
     window.addEventListener('storage', syncUser);
     window.addEventListener('user-updated', syncUser);
     return () => {
+      window.removeEventListener('faculty_profile_updated', syncUser);
       window.removeEventListener('storage', syncUser);
       window.removeEventListener('user-updated', syncUser);
     };
@@ -49,28 +54,28 @@ export default function FacultyLayout({ children }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#151f1d] text-[#f4f1ea]">
+    <div className="min-h-screen flex flex-col bg-[#241f1e] text-[#f5efeb]">
       {/* Top Faculty Header */}
-      <header className="sticky top-0 z-40 bg-[#151f1d]/90 backdrop-blur-md border-b border-[#2e433e]/70 px-6 py-4">
+      <header className="sticky top-0 z-40 bg-[#241f1e]/90 backdrop-blur-md border-b border-[#463c39]/70 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center shadow-lg shadow-[#4f7c6e]/20">
-              <GraduationCap className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center shadow-lg shadow-[#b5c7d3]/20">
+              <GraduationCap className="w-5 h-5 text-[#2c2624]" />
             </div>
             <div>
-              <span className="text-lg font-bold tracking-tight text-[#f4f1ea]">Academic<span className="gradient-text">AI</span></span>
-              <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-[#4f7c6e]/20 text-[#8fb1a5] border border-[#4f7c6e]/30">Faculty Portal</span>
+              <span className="text-lg font-bold tracking-tight text-[#f5efeb]">Academic<span className="gradient-text">AI</span></span>
+              <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-[#a19588]/20 text-[#c8bfb8] border border-[#a19588]/30">Faculty Portal</span>
             </div>
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="hidden sm:flex items-center space-x-2 text-xs text-[#8fb1a5] bg-[#1e2c29] px-3 py-1.5 rounded-lg border border-[#2e433e]">
-              <User className="w-3.5 h-3.5 text-[#5ea891]" />
-              <span className="font-medium font-mono text-[11px] text-[#c8ded7]">{user?.email || 'dr.smith@academic.edu'}</span>
+            <div className="hidden sm:flex items-center space-x-2 text-xs text-[#c8bfb8] bg-[#312a28] px-3 py-1.5 rounded-lg border border-[#463c39]">
+              <User className="w-3.5 h-3.5 text-[#b5c7d3]" />
+              <span className="font-medium font-mono text-[11px] text-[#f5efeb]">{user?.email || 'Faculty'}</span>
             </div>
             <button
               onClick={handleLogout}
-              className="p-2 rounded-lg bg-[#1e2c29] hover:bg-[#2e433e] text-[#8fb1a5] hover:text-[#f4f1ea] border border-[#2e433e] transition-colors"
+              className="p-2 rounded-lg bg-[#312a28] hover:bg-[#463c39] text-[#c8bfb8] hover:text-[#f5efeb] border border-[#463c39] transition-colors"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />

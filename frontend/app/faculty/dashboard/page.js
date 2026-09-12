@@ -3,14 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { UploadCloud, FileText, Trash2, Archive, ExternalLink, Download, CheckCircle2, AlertCircle, User, BookOpen, Pencil, X, ChevronDown, ChevronRight } from 'lucide-react';
-import { getStoredUser, getStoredToken } from '@/lib/auth';
+import { getStoredUser, getStoredToken, setSession } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { getDocumentUrl } from '@/lib/supabase';
 
 // ─── Edit Profile Modal ────────────────────────────────────────────────────────
 function EditProfileModal({ user, currentProfile, onSave, onClose }) {
   const [name, setName] = useState(currentProfile?.name || user?.name || '');
-  const [email, setEmail] = useState(currentProfile?.email || user?.email || 'dr.smith@academic.edu');
+  const [email, setEmail] = useState(currentProfile?.email || user?.email || '');
   const [department, setDepartment] = useState(currentProfile?.department || '');
   const [designation, setDesignation] = useState(currentProfile?.designation || '');
   const [bio, setBio] = useState(currentProfile?.bio || '');
@@ -19,8 +19,8 @@ function EditProfileModal({ user, currentProfile, onSave, onClose }) {
   const handleSave = (e) => {
     e.preventDefault();
     setSaving(true);
-    const updatedEmail = email.trim() || user?.email || 'dr.smith@academic.edu';
-    const updatedName = name.trim() || user?.name || 'Dr. Robert Smith';
+    const updatedEmail = email.trim() || user?.email || '';
+    const updatedName = name.trim() || user?.name || 'Faculty Member';
     const profile = {
       id: user?.id || '00000000-0000-0000-0000-000000000002',
       email: updatedEmail,
@@ -54,7 +54,8 @@ function EditProfileModal({ user, currentProfile, onSave, onClose }) {
       };
       setSession(getStoredToken() || 'demo_faculty_token_12345', updatedUser);
 
-      // Dispatch events so Header and layouts update in real time
+      // Dispatch custom events for any independent Header and Layout components
+      window.dispatchEvent(new Event('faculty_profile_updated'));
       window.dispatchEvent(new Event('storage'));
       window.dispatchEvent(new CustomEvent('user-updated', { detail: profile }));
     } catch (_) {}
@@ -66,74 +67,74 @@ function EditProfileModal({ user, currentProfile, onSave, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-[#1e2c29] border border-[#2e433e] rounded-2xl shadow-2xl p-6" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200 text-[#f5efeb]">
+      <div className="relative w-full max-w-md bg-[#312a28] border border-[#463c39] rounded-2xl shadow-2xl p-6" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-[#4f7c6e]/20 border border-[#4f7c6e]/30 flex items-center justify-center">
-              <Pencil className="w-4 h-4 text-[#5ea891]" />
+            <div className="w-8 h-8 rounded-lg bg-[#b5c7d3]/15 border border-[#b5c7d3]/30 flex items-center justify-center">
+              <Pencil className="w-4 h-4 text-[#b5c7d3]" />
             </div>
-            <h2 className="text-sm font-bold text-[#f4f1ea]">Edit Faculty Profile</h2>
+            <h2 className="text-sm font-bold text-[#f5efeb]">Edit Faculty Profile</h2>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-[#8fb1a5] hover:text-[#f4f1ea] hover:bg-[#2e433e] transition-colors">
+          <button onClick={onClose} className="p-1.5 rounded-lg text-[#c8bfb8] hover:text-[#f5efeb] hover:bg-[#463c39] transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#c8ded7] mb-1.5">Full Name</label>
+            <label className="block text-xs font-semibold text-[#c8bfb8] mb-1.5">Full Name</label>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="e.g. Dr. Anita Sharma"
-              className="w-full px-3.5 py-2.5 bg-[#151f1d] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] placeholder-[#8fb1a5]/50 focus:outline-none focus:border-[#4f7c6e] transition-all"
+              className="w-full px-3.5 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#c8ded7] mb-1.5">Institutional Email</label>
+            <label className="block text-xs font-semibold text-[#c8bfb8] mb-1.5">Institutional Email</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="e.g. dr.smith@academic.edu"
-              className="w-full px-3.5 py-2.5 bg-[#151f1d] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] placeholder-[#8fb1a5]/50 focus:outline-none focus:border-[#4f7c6e] transition-all font-mono"
+              className="w-full px-3.5 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all font-mono"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#c8ded7] mb-1.5">Department</label>
+            <label className="block text-xs font-semibold text-[#c8bfb8] mb-1.5">Department</label>
             <input
               type="text"
               value={department}
               onChange={e => setDepartment(e.target.value)}
               placeholder="e.g. Computer Science & Engineering"
-              className="w-full px-3.5 py-2.5 bg-[#151f1d] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] placeholder-[#8fb1a5]/50 focus:outline-none focus:border-[#4f7c6e] transition-all"
+              className="w-full px-3.5 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#c8ded7] mb-1.5">Designation / Title</label>
+            <label className="block text-xs font-semibold text-[#c8bfb8] mb-1.5">Designation / Title</label>
             <input
               type="text"
               value={designation}
               onChange={e => setDesignation(e.target.value)}
               placeholder="e.g. Associate Professor"
-              className="w-full px-3.5 py-2.5 bg-[#151f1d] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] placeholder-[#8fb1a5]/50 focus:outline-none focus:border-[#4f7c6e] transition-all"
+              className="w-full px-3.5 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#c8ded7] mb-1.5">Short Bio / Office Info</label>
+            <label className="block text-xs font-semibold text-[#c8bfb8] mb-1.5">Short Bio / Office Info</label>
             <textarea
               value={bio}
               onChange={e => setBio(e.target.value)}
               placeholder="Brief background, research interests, or office location..."
               rows={3}
-              className="w-full px-3.5 py-2.5 bg-[#151f1d] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] placeholder-[#8fb1a5]/50 focus:outline-none focus:border-[#4f7c6e] transition-all resize-none"
+              className="w-full px-3.5 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all resize-none"
             />
           </div>
 
@@ -141,17 +142,17 @@ function EditProfileModal({ user, currentProfile, onSave, onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl bg-[#151f1d] hover:bg-[#2e433e] border border-[#2e433e] text-[#8fb1a5] text-xs font-semibold transition-all"
+              className="flex-1 py-2.5 rounded-xl bg-[#282220] hover:bg-[#463c39] border border-[#463c39] text-[#c8bfb8] hover:text-[#f5efeb] text-xs font-semibold transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 py-2.5 rounded-xl gradient-bg hover:opacity-90 text-white text-xs font-semibold shadow-lg shadow-[#4f7c6e]/20 transition-all disabled:opacity-60 flex items-center justify-center space-x-2"
+              className="flex-1 py-2.5 rounded-xl gradient-bg hover:opacity-90 text-[#2c2624] font-bold text-xs shadow-lg shadow-[#b5c7d3]/20 transition-all disabled:opacity-60 flex items-center justify-center space-x-2"
             >
               {saving ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-[#2c2624] border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
                   <CheckCircle2 className="w-3.5 h-3.5" />
@@ -171,21 +172,21 @@ function SemesterGroup({ semester, items, onArchive, onDelete, actionLoading }) 
   const [open, setOpen] = useState(true);
 
   return (
-    <div className="border border-[#2e433e] rounded-xl overflow-hidden">
+    <div className="border border-[#463c39] rounded-xl overflow-hidden">
       {/* Accordion Header */}
       <button
         type="button"
         onClick={() => setOpen(prev => !prev)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-[#1e2c29] hover:bg-[#2e433e] transition-colors text-left"
+        className="w-full flex items-center justify-between px-4 py-3 bg-[#312a28] hover:bg-[#463c39]/70 transition-colors text-left"
       >
         <div className="flex items-center space-x-2.5">
           {open ? (
-            <ChevronDown className="w-4 h-4 text-[#5ea891]" />
+            <ChevronDown className="w-4 h-4 text-[#b5c7d3]" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-[#5ea891]" />
+            <ChevronRight className="w-4 h-4 text-[#b5c7d3]" />
           )}
-          <span className="text-xs font-bold text-[#f4f1ea]">Semester {semester}</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#4f7c6e]/20 text-[#8fb1a5] border border-[#4f7c6e]/25">
+          <span className="text-xs font-bold text-[#f5efeb]">Semester {semester}</span>
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#a19588]/20 text-[#c8bfb8] border border-[#a19588]/30">
             {items.length} {items.length === 1 ? 'item' : 'items'}
           </span>
         </div>
@@ -194,8 +195,8 @@ function SemesterGroup({ semester, items, onArchive, onDelete, actionLoading }) 
       {/* Accordion Body */}
       {open && (
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-[#c8ded7]">
-            <thead className="bg-[#151f1d] text-[#8fb1a5] uppercase text-[10px] font-bold">
+          <table className="w-full text-left text-xs text-[#f5efeb]">
+            <thead className="bg-[#282220] text-[#c8bfb8] uppercase text-[10px] font-bold">
               <tr>
                 <th className="px-4 py-3 rounded-l-lg">Material</th>
                 <th className="px-3 py-3">Unit</th>
@@ -203,21 +204,21 @@ function SemesterGroup({ semester, items, onArchive, onDelete, actionLoading }) 
                 <th className="px-4 py-3 text-right rounded-r-lg">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#2e433e]/60">
+            <tbody className="divide-y divide-[#463c39]/60">
               {items.map((mat) => (
-                <tr key={mat.id} className="hover:bg-[#2e433e]/30 transition-colors">
+                <tr key={mat.id} className="hover:bg-[#463c39]/20 transition-colors">
                   <td className="px-4 py-3.5 max-w-xs">
-                    <div className="font-semibold text-[#f4f1ea] line-clamp-1">{mat.title}</div>
-                    <div className="text-[10px] text-[#8fb1a5] mt-0.5">{mat.subject_name || 'Computer Science'} • {mat.material_type}</div>
+                    <div className="font-semibold text-[#f5efeb] line-clamp-1">{mat.title}</div>
+                    <div className="text-[10px] text-[#c8bfb8] mt-0.5">{mat.subject_name || 'Computer Science'} • {mat.material_type}</div>
                   </td>
-                  <td className="px-3 py-3.5 font-mono text-[11px] text-[#8fb1a5]">
+                  <td className="px-3 py-3.5 font-mono text-[11px] text-[#c8bfb8]">
                     {mat.unit ? `Unit ${mat.unit}` : '—'}
                   </td>
                   <td className="px-3 py-3.5">
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
                       (mat.status || '').toUpperCase() === 'ARCHIVED'
                         ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                        : 'bg-[#4f7c6e]/20 text-[#5ea891] border border-[#4f7c6e]/30'
+                        : 'bg-[#b5c7d3]/15 text-[#b5c7d3] border border-[#b5c7d3]/30'
                     }`}>
                       {(mat.status || 'ACTIVE').toUpperCase() === 'ARCHIVED' ? 'ARCHIVED' : 'ACTIVE'}
                     </span>
@@ -229,7 +230,7 @@ function SemesterGroup({ semester, items, onArchive, onDelete, actionLoading }) 
                           href={mat.file_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1.5 rounded-lg bg-[#1e2c29] hover:bg-[#2e433e] text-[#8fb1a5] border border-[#2e433e] transition-colors"
+                          className="p-1.5 rounded-lg bg-[#282220] hover:bg-[#463c39] text-[#c8bfb8] hover:text-[#f5efeb] border border-[#463c39] transition-colors"
                           title="View / Open Document"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
@@ -241,7 +242,7 @@ function SemesterGroup({ semester, items, onArchive, onDelete, actionLoading }) 
                           download
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1.5 rounded-lg bg-[#1e2c29] hover:bg-[#2e433e] text-[#8fb1a5] border border-[#2e433e] transition-colors"
+                          className="p-1.5 rounded-lg bg-[#282220] hover:bg-[#463c39] text-[#c8bfb8] hover:text-[#f5efeb] border border-[#463c39] transition-colors"
                           title="Download Document"
                         >
                           <Download className="w-3.5 h-3.5" />
@@ -253,7 +254,7 @@ function SemesterGroup({ semester, items, onArchive, onDelete, actionLoading }) 
                         disabled={actionLoading[mat.id] === 'archive'}
                         className={`p-1.5 rounded-lg border transition-colors disabled:opacity-40 ${
                           (mat.status || '').toUpperCase() === 'ARCHIVED'
-                            ? 'bg-[#4f7c6e]/10 hover:bg-[#4f7c6e]/20 text-[#5ea891] border-[#4f7c6e]/30'
+                            ? 'bg-[#b5c7d3]/10 hover:bg-[#b5c7d3]/20 text-[#b5c7d3] border-[#b5c7d3]/30'
                             : 'bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
                         }`}
                         title={(mat.status || '').toUpperCase() === 'ARCHIVED' ? "Restore / Unarchive Material" : "Archive Material"}
@@ -289,6 +290,15 @@ export default function FacultyDashboard() {
 
   // Profile state
   const [profileData, setProfileData] = useState(null);
+  const [facultyEmail, setFacultyEmail] = useState(() => {
+    if (typeof window === 'undefined') return user?.email || '';
+    try {
+      const profile = JSON.parse(localStorage.getItem('faculty_profile') || '{}');
+      return profile?.email || user?.email || '';
+    } catch (_) {
+      return user?.email || '';
+    }
+  });
   const [showEditProfile, setShowEditProfile] = useState(false);
 
   // Upload Form State
@@ -328,19 +338,25 @@ export default function FacultyDashboard() {
       try {
         const single = localStorage.getItem('faculty_profile');
         if (single) {
-          setProfileData(JSON.parse(single));
+          const parsed = JSON.parse(single);
+          setProfileData(parsed);
+          if (parsed.email) setFacultyEmail(parsed.email);
           return;
         }
         const stored = localStorage.getItem('faculty_profiles');
         if (stored) {
           const profiles = JSON.parse(stored);
           const mine = profiles.find(p => p.email === user?.email || p.id === user?.id) || profiles[0];
-          if (mine) setProfileData(mine);
+          if (mine) {
+            setProfileData(mine);
+            if (mine.email) setFacultyEmail(mine.email);
+          }
         }
       } catch (_) {}
     };
 
     loadProfile();
+    window.addEventListener('faculty_profile_updated', loadProfile);
     window.addEventListener('storage', loadProfile);
     window.addEventListener('user-updated', loadProfile);
 
@@ -354,6 +370,7 @@ export default function FacultyDashboard() {
     fetchFacultyHistory();
 
     return () => {
+      window.removeEventListener('faculty_profile_updated', loadProfile);
       window.removeEventListener('storage', loadProfile);
       window.removeEventListener('user-updated', loadProfile);
     };
@@ -483,38 +500,38 @@ export default function FacultyDashboard() {
   });
 
   const displayName = profileData?.name || user?.name || "Dr. Robert Smith";
-  const displayEmail = profileData?.email || user?.email || "dr.smith@academic.edu";
+  const displayEmail = facultyEmail || profileData?.email || user?.email || "";
   const displayDept = profileData?.department || "Department of Computer Science";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 text-[#f5efeb]">
       {/* Header Profile Section */}
-      <div className="glass-card p-6 rounded-2xl border border-[#2e433e] flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="glass-card p-6 rounded-2xl border border-[#463c39] bg-[#312a28]/80 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center space-x-4">
-          <div className="w-14 h-14 rounded-2xl gradient-bg flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-[#4f7c6e]/20">
+          <div className="w-14 h-14 rounded-2xl gradient-bg flex items-center justify-center text-[#2c2624] font-bold text-xl shadow-lg shadow-[#b5c7d3]/20">
             {displayName.charAt(0).toUpperCase()}
           </div>
           <div>
-            <h1 className="text-xl font-bold text-[#f4f1ea] tracking-tight">{displayName}</h1>
-            <p className="text-xs text-[#8fb1a5] mt-0.5 flex flex-wrap items-center gap-1.5">
-              <span className="font-mono text-[11px] text-[#c8ded7]">{displayEmail}</span>
+            <h1 className="text-xl font-bold text-[#f5efeb] tracking-tight">{displayName}</h1>
+            <p className="text-xs text-[#c8bfb8] mt-0.5 flex flex-wrap items-center gap-1.5">
+              <span className="font-mono text-[11px] text-[#f5efeb]">{displayEmail}</span>
               <span>•</span>
               <span>{displayDept}</span>
             </p>
             {profileData?.designation && (
-              <p className="text-[11px] text-[#5ea891] font-medium mt-0.5">{profileData.designation}</p>
+              <p className="text-[11px] text-[#b5c7d3] font-medium mt-0.5">{profileData.designation}</p>
             )}
           </div>
         </div>
 
         <div className="flex items-center space-x-3">
           <div className="text-right">
-            <div className="text-xl font-extrabold text-[#f4f1ea]">{materials.length}</div>
-            <div className="text-[11px] text-[#8fb1a5] uppercase tracking-wider">Uploaded Materials</div>
+            <div className="text-xl font-extrabold text-[#f5efeb]">{materials.length}</div>
+            <div className="text-[11px] text-[#c8bfb8] uppercase tracking-wider">Uploaded Materials</div>
           </div>
           <button
             onClick={() => setShowEditProfile(true)}
-            className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-[#4f7c6e]/15 hover:bg-[#4f7c6e]/25 border border-[#4f7c6e]/30 text-[#8fb1a5] hover:text-[#c8ded7] text-xs font-semibold transition-all"
+            className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-[#b5c7d3]/15 hover:bg-[#b5c7d3]/25 border border-[#b5c7d3]/30 text-[#b5c7d3] hover:text-[#f5efeb] text-xs font-semibold transition-all"
             title="Edit Faculty Profile"
           >
             <Pencil className="w-3.5 h-3.5" />
@@ -526,14 +543,14 @@ export default function FacultyDashboard() {
       {/* Main Grid: Upload + History */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Upload Form */}
-        <div className="lg:col-span-5 glass-panel p-6 rounded-2xl border border-[#2e433e] space-y-5">
-          <div className="flex items-center space-x-2 pb-3 border-b border-[#2e433e]">
-            <UploadCloud className="w-5 h-5 text-[#5ea891]" />
-            <h2 className="text-base font-bold text-[#f4f1ea]">Upload Faculty Material</h2>
+        <div className="lg:col-span-5 glass-panel p-6 rounded-2xl border border-[#463c39] bg-[#312a28]/80 space-y-5">
+          <div className="flex items-center space-x-2 pb-3 border-b border-[#463c39]">
+            <UploadCloud className="w-5 h-5 text-[#b5c7d3]" />
+            <h2 className="text-base font-bold text-[#f5efeb]">Upload Faculty Material</h2>
           </div>
 
           {uploadMessage && (
-            <div className="p-3.5 rounded-xl bg-[#4f7c6e]/10 border border-[#4f7c6e]/25 text-[#5ea891] text-xs flex items-center space-x-2">
+            <div className="p-3.5 rounded-xl bg-[#b5c7d3]/15 border border-[#b5c7d3]/30 text-[#b5c7d3] text-xs flex items-center space-x-2">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{uploadMessage}</span>
             </div>
@@ -548,35 +565,35 @@ export default function FacultyDashboard() {
 
           <form onSubmit={handleUploadSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-[#c8ded7] mb-1">Document Title *</label>
+              <label className="block text-xs font-semibold text-[#c8bfb8] mb-1">Document Title *</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Operating Systems - Unit 2 Memory Management"
                 required
-                className="w-full px-3.5 py-2.5 bg-[#151f1d] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] placeholder-[#8fb1a5]/50 focus:outline-none focus:border-[#4f7c6e] transition-all"
+                className="w-full px-3.5 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#c8ded7] mb-1">Description</label>
+              <label className="block text-xs font-semibold text-[#c8bfb8] mb-1">Description</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Brief summary of covered concepts..."
                 rows={2}
-                className="w-full px-3.5 py-2.5 bg-[#151f1d] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] placeholder-[#8fb1a5]/50 focus:outline-none focus:border-[#4f7c6e] transition-all"
+                className="w-full px-3.5 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] placeholder-[#c8bfb8]/50 focus:outline-none focus:border-[#b5c7d3] transition-all"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#c8ded7] mb-1">Semester</label>
+                <label className="block text-xs font-semibold text-[#c8bfb8] mb-1">Semester</label>
                 <select
                   value={semester}
                   onChange={(e) => setSemester(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-[#151f1d] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] focus:outline-none focus:border-[#4f7c6e]"
+                  className="w-full px-3 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] focus:outline-none focus:border-[#b5c7d3]"
                 >
                   {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
                     <option key={s} value={s}>Semester {s}</option>
@@ -585,11 +602,11 @@ export default function FacultyDashboard() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#c8ded7] mb-1">Unit</label>
+                <label className="block text-xs font-semibold text-[#c8bfb8] mb-1">Unit</label>
                 <select
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-[#151f1d] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] focus:outline-none focus:border-[#4f7c6e]"
+                  className="w-full px-3 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] focus:outline-none focus:border-[#b5c7d3]"
                 >
                   {[1, 2, 3, 4, 5].map(u => (
                     <option key={u} value={u}>Unit {u}</option>
@@ -599,11 +616,11 @@ export default function FacultyDashboard() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#c8ded7] mb-1">Material Type</label>
+              <label className="block text-xs font-semibold text-[#c8bfb8] mb-1">Material Type</label>
               <select
                 value={materialType}
                 onChange={(e) => setMaterialType(e.target.value)}
-                className="w-full px-3 py-2.5 bg-[#151f1d] border border-[#2e433e] rounded-xl text-xs text-[#f4f1ea] focus:outline-none focus:border-[#4f7c6e]"
+                className="w-full px-3 py-2.5 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#f5efeb] focus:outline-none focus:border-[#b5c7d3]"
               >
                 <option value="notes">Lecture Notes</option>
                 <option value="question_paper">Question Paper</option>
@@ -614,24 +631,24 @@ export default function FacultyDashboard() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#c8ded7] mb-1">Upload Document File (PDF) *</label>
+              <label className="block text-xs font-semibold text-[#c8bfb8] mb-1">Upload Document File (PDF) *</label>
               <input
                 type="file"
                 accept=".pdf,.doc,.docx"
                 onChange={(e) => setFile(e.target.files[0] || null)}
                 required
-                className="w-full px-3 py-2 bg-[#151f1d] border border-[#2e433e] rounded-xl text-xs text-[#8fb1a5] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#4f7c6e] file:text-white hover:file:bg-[#5ea891] transition-all"
+                className="w-full px-3 py-2 bg-[#282220] border border-[#463c39] rounded-xl text-xs text-[#c8bfb8] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#b5c7d3] file:text-[#2c2624] hover:file:bg-[#a3b8c8] transition-all"
               />
             </div>
 
             <button
               type="submit"
               disabled={uploading}
-              className="w-full py-3 px-4 rounded-xl gradient-bg hover:opacity-90 text-white font-medium text-xs flex items-center justify-center space-x-2 shadow-lg shadow-[#4f7c6e]/25 transition-all disabled:opacity-50 mt-2"
+              className="w-full py-3 px-4 rounded-xl gradient-bg hover:opacity-90 text-[#2c2624] font-bold text-xs flex items-center justify-center space-x-2 shadow-lg shadow-[#b5c7d3]/20 transition-all disabled:opacity-50 mt-2"
             >
               {uploading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-[#2c2624] border-t-transparent rounded-full animate-spin"></div>
                   <span>Uploading...</span>
                 </>
               ) : (
@@ -645,25 +662,25 @@ export default function FacultyDashboard() {
         </div>
 
         {/* History — Semester-wise Grouped */}
-        <div className="lg:col-span-7 glass-panel p-6 rounded-2xl border border-[#2e433e] space-y-4 flex flex-col">
-          <div className="flex items-center justify-between pb-3 border-b border-[#2e433e]">
+        <div className="lg:col-span-7 glass-panel p-6 rounded-2xl border border-[#463c39] bg-[#312a28]/80 space-y-4 flex flex-col">
+          <div className="flex items-center justify-between pb-3 border-b border-[#463c39]">
             <div className="flex items-center space-x-2">
-              <FileText className="w-5 h-5 text-[#5ea891]" />
-              <h2 className="text-base font-bold text-[#f4f1ea]">Uploaded Materials History</h2>
+              <FileText className="w-5 h-5 text-[#b5c7d3]" />
+              <h2 className="text-base font-bold text-[#f5efeb]">Uploaded Materials History</h2>
             </div>
-            <span className="text-xs text-[#8fb1a5] font-mono">{materials.length} Items</span>
+            <span className="text-xs text-[#c8bfb8] font-mono">{materials.length} Items</span>
           </div>
 
           {loadingHistory ? (
             <div className="py-20 flex justify-center items-center space-x-3">
-              <div className="w-6 h-6 border-2 border-[#4f7c6e] border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-xs text-[#8fb1a5]">Loading uploaded materials...</span>
+              <div className="w-6 h-6 border-2 border-[#b5c7d3] border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-xs text-[#c8bfb8]">Loading uploaded materials...</span>
             </div>
           ) : materials.length === 0 ? (
-            <div className="py-16 text-center border border-dashed border-[#2e433e] rounded-xl">
-              <BookOpen className="w-10 h-10 text-[#4f7c6e]/30 mx-auto mb-2" />
-              <h4 className="text-sm font-semibold text-[#f4f1ea]">No materials uploaded yet</h4>
-              <p className="text-xs text-[#8fb1a5] max-w-xs mx-auto mt-1">
+            <div className="py-16 text-center border border-dashed border-[#463c39] rounded-xl">
+              <BookOpen className="w-10 h-10 text-[#b5c7d3]/30 mx-auto mb-2" />
+              <h4 className="text-sm font-semibold text-[#f5efeb]">No materials uploaded yet</h4>
+              <p className="text-xs text-[#c8bfb8] max-w-xs mx-auto mt-1">
                 Upload your course lecture notes or syllabus above to populate this history table.
               </p>
             </div>
@@ -688,9 +705,10 @@ export default function FacultyDashboard() {
       {showEditProfile && (
         <EditProfileModal
           user={user}
-          currentProfile={profileData}
+          currentProfile={{ ...profileData, email: facultyEmail || profileData?.email }}
           onSave={(profile) => {
             setProfileData(profile);
+            if (profile.email) setFacultyEmail(profile.email);
             setShowEditProfile(false);
           }}
           onClose={() => setShowEditProfile(false)}

@@ -14,23 +14,23 @@ export default function AdminLayout({ children }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0f19] text-gray-100 flex flex-col">
+    <div className="min-h-screen bg-[#241f1e] text-[#f5efeb] flex flex-col">
       {/* Top Admin Bar */}
-      <header className="h-16 border-b border-gray-800/80 bg-[#0d121f]/90 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30">
+      <header className="h-16 border-b border-[#463c39]/80 bg-[#312a28]/90 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center space-x-4">
-          <div className="w-9 h-9 rounded-xl bg-purple-600 flex items-center justify-center text-white shadow-lg shadow-purple-600/30">
+          <div className="w-9 h-9 rounded-xl bg-[#b5c7d3] flex items-center justify-center text-[#2c2624] shadow-lg shadow-[#b5c7d3]/30">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-base font-bold text-white">Faculty Admin Console</span>
-            <span className="ml-2 text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-semibold border border-purple-500/30">Admin Mode</span>
+            <span className="text-base font-bold text-[#f5efeb]">Faculty Admin Console</span>
+            <span className="ml-2 text-[10px] px-2 py-0.5 rounded bg-[#b5c7d3]/20 text-[#b5c7d3] font-semibold border border-[#b5c7d3]/30">Admin Mode</span>
           </div>
         </div>
 
         <div className="flex items-center space-x-4">
           <Link
             href="/student/dashboard"
-            className="text-xs text-gray-400 hover:text-white flex items-center space-x-1 transition-colors"
+            className="text-xs text-[#c8bfb8] hover:text-[#f5efeb] flex items-center space-x-1 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Switch to Student View</span>
