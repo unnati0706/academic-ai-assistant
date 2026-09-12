@@ -42,6 +42,12 @@ export async function apiFetch(endpoint, options = {}) {
 // API Endpoints
 export const api = {
   // Auth
+  login: (email, password, role = "student") =>
+    apiFetch("/auth/login", { method: "POST", body: JSON.stringify({ email, password, role }) }),
+
+  signup: (email, password, role = "student", name = "", department = null, semester = null) =>
+    apiFetch("/auth/signup", { method: "POST", body: JSON.stringify({ email, password, role, name, department, semester }) }),
+
   verifyOtp: (email, token, role = "student") =>
     apiFetch("/auth/verify-otp", { method: "POST", body: JSON.stringify({ email, token, role }) }),
   getMe: () => apiFetch("/auth/me"),
